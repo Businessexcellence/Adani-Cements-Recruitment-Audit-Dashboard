@@ -9,6 +9,8 @@
 ## URLs
 - **GitHub Repository**: https://github.com/Rishab25276/Adani-Ambuja-Cement-Audit-Dashboard
 - **Live Demo**: https://3000-ioyjkajzw2h2lj6y89w5f-5c13a017.sandbox.novita.ai
+- **GitHub Pages** (after enabling): https://rishab25276.github.io/Adani-Ambuja-Cement-Audit-Dashboard/
+- **Sample Data**: `Power BI Dashboard Data.xlsx` included in repository (48KB, 151 records)
 - **Local Development**: Open `index.html` directly in browser or use a local server
 - **Production**: Can be deployed to any static hosting (GitHub Pages, Cloudflare Pages, Netlify, etc.)
 
@@ -76,6 +78,19 @@ Required columns:
 - **Client-Side Only**: All processing happens in browser using JavaScript
 - **No Backend Required**: Pure HTML/CSS/JS static application
 - **localStorage**: Can be enhanced to save filter preferences
+
+## Quick Test with Sample Data
+
+### Try the Dashboard Immediately:
+1. Open the live dashboard (see URLs above)
+2. Click **"Upload Data"** button
+3. Download `Power BI Dashboard Data.xlsx` from this repository
+4. Upload the file to the dashboard
+5. Explore all 8 views with real sample data (151 audit records)
+
+See **SAMPLE_DATA_INFO.md** for detailed information about the sample dataset.
+
+---
 
 ## User Guide
 
