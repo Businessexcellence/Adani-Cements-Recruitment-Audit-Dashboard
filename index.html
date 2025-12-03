@@ -1,0 +1,2990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adani Recruitment Audit Dashboard - Enhanced v4.4 - SEPTEMBER/OCTOBER FIX</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --adani-blue: #0B74B0;
+            --adani-light-blue: #75479C;
+            --adani-accent: #BD3861;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --bg-primary: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --border-color: #E2E8F0;
+            --shadow-lg: 0 10px 25px -5px rgba(30, 58, 138, 0.15);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0F172A;
+            --bg-card: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--adani-blue), var(--adani-light-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .nav-menu { list-style: none; }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, var(--adani-blue), var(--adani-light-blue));
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px 35px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-lg);
+            border-left: 5px solid var(--adani-blue);
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--adani-blue), var(--adani-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .btn {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--adani-blue), var(--adani-light-blue));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .insights-panel {
+            background: linear-gradient(135deg, var(--adani-blue), var(--adani-light-blue));
+            border-radius: 16px;
+            padding: 28px;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 18px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .insight-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .insight-value {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--shadow-lg);
+            border-top: 5px solid var(--adani-blue);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--adani-blue);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+        }
+        
+        thead {
+            background: linear-gradient(135deg, var(--adani-blue), var(--adani-light-blue));
+        }
+        
+        th {
+            padding: 16px;
+            text-align: left;
+            color: white;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        tbody tr:hover {
+            background: var(--bg-primary);
+        }
+        
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success-color); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning-color); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger-color); }
+        
+        .upload-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+        }
+        
+        .upload-section.active { display: block; }
+        
+        .upload-area {
+            border: 3px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--adani-blue);
+            background: var(--bg-primary);
+        }
+        
+        .filters-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        
+        .filter-select {
+            width: 100%;
+        }
+        
+        .select2-container--default .select2-selection--multiple {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-primary);
+            min-height: 45px;
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: var(--adani-blue);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: var(--adani-blue);
+            font-size: 24px;
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .close:hover {
+            color: var(--danger-color);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-item:hover {
+            border-color: var(--adani-blue);
+            background: var(--bg-primary);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .comparison-selects {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-selects select {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+        }
+        
+        /* User Manual Styles */
+        .manual-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--adani-blue);
+        }
+        
+        .manual-section h3 {
+            color: var(--adani-blue);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .manual-section h4 {
+            color: var(--adani-light-blue);
+            margin: 15px 0 10px 0;
+            font-size: 16px;
+        }
+        
+        .manual-section ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .manual-section code {
+            background: var(--bg-primary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: var(--adani-blue);
+        }
+        
+        .formula-box {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            border-left: 3px solid var(--success-color);
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            color: white;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">A</div>
+            <div class="logo-text">Adani Audit</div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li><a class="nav-link active" onclick="showView('overall')">
+                <i class="fas fa-th-large"></i> Overall View
+            </a></li>
+            <li><a class="nav-link" onclick="showView('weekly')">
+                <i class="fas fa-calendar-week"></i> Weekly View
+            </a></li>
+            <li><a class="nav-link" onclick="showView('monthly')">
+                <i class="fas fa-calendar-alt"></i> Monthly View
+            </a></li>
+            <li><a class="nav-link" onclick="showView('yearly')">
+                <i class="fas fa-chart-bar"></i> Yearly View
+            </a></li>
+            <li><a class="nav-link" onclick="showView('recruiters')">
+                <i class="fas fa-users"></i> Recruiter View
+            </a></li>
+            <li><a class="nav-link" onclick="showView('parameters')">
+                <i class="fas fa-tasks"></i> Parameter View
+            </a></li>
+            <li><a class="nav-link" onclick="showView('comparison')">
+                <i class="fas fa-exchange-alt"></i> Comparison View
+            </a></li>
+            <li><a class="nav-link" onclick="showView('trends')">
+                <i class="fas fa-chart-line"></i> Trend Analysis
+            </a></li>
+            <li><a class="nav-link" onclick="showView('manual')">
+                <i class="fas fa-book"></i> User Manual
+            </a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Adani Recruitment Process Audit Dashboard</h1>
+            <p style="color: var(--text-secondary); margin-top: 8px;">
+                Real-time QA Audit Analytics & Performance Insights | v4.1 - Recruiter Filter Fixed Edition
+            </p>
+            <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="toggleUploadSection()">
+                    <i class="fas fa-file-upload"></i> Upload Data
+                </button>
+                <button class="btn btn-primary" onclick="openExportModal()">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button class="btn btn-primary" onclick="toggleTheme()">
+                    <i class="fas fa-moon" id="themeIcon"></i> Theme
+                </button>
+                <button class="btn btn-primary" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i> Reset Filters
+                </button>
+                <button class="btn btn-primary" onclick="toggleAudioDescriptions()" title="Toggle audio descriptions">
+                    <i class="fas fa-volume-up"></i> Audio
+                </button>
+            </div>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: var(--adani-blue);"></i>
+                <p style="font-size: 18px; margin: 15px 0 5px;">Click to Upload Excel File</p>
+                <p style="font-size: 14px; color: var(--text-secondary);">Excel with "Audit Count" and "Recruiter Wise Data" sheets</p>
+            </div>
+            <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)" style="display:none;">
+        </div>
+
+        <div class="filters-section">
+            <h3 style="margin-bottom: 20px; color: var(--adani-blue);">
+                <i class="fas fa-filter"></i> Advanced Multi-Select Filters
+            </h3>
+            <div class="filters-grid">
+                <div>
+                    <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 8px;">Year</label>
+                    <select class="filter-select" id="yearFilter" multiple="multiple">
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 8px;">Month</label>
+                    <select class="filter-select" id="monthFilter" multiple="multiple">
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 8px;">Week</label>
+                    <select class="filter-select" id="weekFilter" multiple="multiple">
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 8px;">Recruiter</label>
+                    <select class="filter-select" id="recruiterFilter" multiple="multiple">
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 8px;">Parameter</label>
+                    <select class="filter-select" id="parameterFilter" multiple="multiple">
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardContent"></div>
+    </main>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-pdf"></i> Export Dashboard to PDF</h2>
+                <span class="close" onclick="closeExportModal()">&times;</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Select which view to export and what elements to include
+            </p>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; display: block; margin-bottom: 10px;">Select View to Export:</label>
+                <select id="exportViewSelect" style="width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--bg-primary); color: var(--text-primary); font-family: 'Inter', sans-serif;">
+                    <option value="overall">Overall View</option>
+                    <option value="weekly">Weekly View</option>
+                    <option value="monthly">Monthly View</option>
+                    <option value="yearly">Yearly View</option>
+                    <option value="recruiters">Recruiter View</option>
+                    <option value="parameters">Parameter View</option>
+                    <option value="comparison">Comparison View</option>
+                    <option value="trends">Trend Analysis</option>
+                </select>
+            </div>
+            
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 10px;">Include Elements:</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="includeCharts" checked>
+                        <span>Charts & Visualizations</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="includeTables" checked>
+                        <span>Data Tables</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="includeInsights" checked>
+                        <span>Key Insights Panel</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="includeStats" checked>
+                        <span>Statistics Cards</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="exportToPDF()" style="width: 100%; margin-top: 20px; justify-content: center;">
+                <i class="fas fa-download"></i> Generate PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p style="font-size: 18px; font-weight: 600;">Generating PDF...</p>
+            <p style="font-size: 14px; margin-top: 10px;">This may take a few moments</p>
+        </div>
+    </div>
+
+    <script>
+        let dashboardData = {
+            auditData: [],
+            recruiterData: [],
+            filteredData: [],
+            filteredRecruiterData: [], // NEW: Separate filtered recruiter data
+            charts: {},
+            selectedFilters: {
+                years: [],
+                months: [],
+                weeks: [],
+                recruiters: [],
+                parameters: []
+            }
+        };
+        
+        let currentTheme = 'light';
+        let currentView = 'overall';
+
+        // Initialize Select2 after DOM loads
+        $(document).ready(function() {
+            initializeSelect2();
+        });
+
+        function initializeSelect2() {
+            $('#yearFilter').select2({
+                placeholder: 'All Years',
+                allowClear: true,
+                width: '100%'
+            }).on('change', function() {
+                dashboardData.selectedFilters.years = $(this).val() || [];
+                applySmartFilters();
+            });
+
+            $('#monthFilter').select2({
+                placeholder: 'All Months',
+                allowClear: true,
+                width: '100%'
+            }).on('change', function() {
+                dashboardData.selectedFilters.months = $(this).val() || [];
+                applySmartFilters();
+            });
+
+            $('#weekFilter').select2({
+                placeholder: 'All Weeks',
+                allowClear: true,
+                width: '100%'
+            }).on('change', function() {
+                dashboardData.selectedFilters.weeks = $(this).val() || [];
+                applySmartFilters();
+            });
+
+            $('#recruiterFilter').select2({
+                placeholder: 'All Recruiters',
+                allowClear: true,
+                width: '100%'
+            }).on('change', function() {
+                dashboardData.selectedFilters.recruiters = $(this).val() || [];
+                applySmartFilters();
+            });
+
+            $('#parameterFilter').select2({
+                placeholder: 'All Parameters',
+                allowClear: true,
+                width: '100%'
+            }).on('change', function() {
+                dashboardData.selectedFilters.parameters = $(this).val() || [];
+                applySmartFilters();
+            });
+        }
+
+        function toggleUploadSection() {
+            const section = document.getElementById('uploadSection');
+            section.classList.toggle('active');
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('themeIcon').className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            renderView();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    const auditSheet = workbook.Sheets['Audit Count'] || workbook.Sheets['Audit Count '];
+                    const recruiterSheet = workbook.Sheets['Recruiter Wise Data'] || workbook.Sheets['Recruiter Wise Data '];
+                    
+                    if (!auditSheet || !recruiterSheet) {
+                        alert('Required sheets not found. Please ensure your Excel file contains "Audit Count" and "Recruiter Wise Data" sheets.');
+                        return;
+                    }
+                    
+                    dashboardData.auditData = XLSX.utils.sheet_to_json(auditSheet);
+                    dashboardData.recruiterData = XLSX.utils.sheet_to_json(recruiterSheet);
+                    
+                    populateFilters();
+                    applySmartFilters();
+                    
+                    alert(`✅ Data loaded successfully!\n${dashboardData.auditData.length} audit records processed.`);
+                    toggleUploadSection();
+                } catch (error) {
+                    alert('❌ Error processing file: ' + error.message);
+                    console.error(error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function populateFilters() {
+            const years = new Set();
+            const months = new Set();
+            const weeks = new Set();
+            const recruiters = new Set();
+            const parameters = new Set();
+
+            dashboardData.auditData.forEach(row => {
+                if (row['Financial Year'] || row['Finanical Year']) {
+                    const year = (row['Financial Year'] || row['Finanical Year']).toString().trim();
+                    if (year) years.add(year);
+                }
+                // Handle both 'Month' and 'Month ' (with trailing space) - TRIM the value!
+                const month = (row['Month'] || row['Month '] || '').toString().trim();
+                if (month) months.add(month);
+                
+                // Handle both 'Week' and 'Week ' (with trailing space)
+                const week = (row['Week'] || row['Week '] || '').toString().trim();
+                if (week) weeks.add(week);
+                
+                // Handle both 'Parameter' and 'Parameter ' (with trailing space) - TRIM the value!
+                const parameter = (row['Parameter'] || row['Parameter '] || '').toString().trim();
+                if (parameter) parameters.add(parameter);
+            });
+
+            dashboardData.recruiterData.forEach(row => {
+                const recruiter = (row['Recruiter Name'] || '').toString().trim();
+                if (recruiter) recruiters.add(recruiter);
+            });
+
+            populateSelect('yearFilter', years);
+            populateSelect('monthFilter', months);
+            populateSelect('weekFilter', weeks);
+            populateSelect('recruiterFilter', recruiters);
+            populateSelect('parameterFilter', parameters);
+        }
+
+        function populateSelect(id, data) {
+            const $select = $('#' + id);
+            $select.empty();
+            
+            Array.from(data).sort().forEach(value => {
+                const option = new Option(value, value, false, false);
+                $select.append(option);
+            });
+            
+            $select.trigger('change');
+        }
+
+        function applySmartFilters() {
+            const { years, months, weeks, recruiters, parameters } = dashboardData.selectedFilters;
+
+            dashboardData.filteredData = dashboardData.auditData.filter(row => {
+                const year = (row['Financial Year'] || row['Finanical Year'] || '').toString().trim();
+                // Handle both 'Month' and 'Month ' (with trailing space) - TRIM the value!
+                const month = (row['Month'] || row['Month '] || '').toString().trim();
+                // Handle both 'Week' and 'Week ' (with trailing space)
+                const week = (row['Week'] || row['Week '] || '').toString().trim();
+                // Handle both 'Parameter' and 'Parameter ' (with trailing space) - TRIM the value!
+                const parameter = (row['Parameter'] || row['Parameter '] || '').toString().trim();
+                
+                const yearMatch = years.length === 0 || years.includes(year);
+                const monthMatch = months.length === 0 || months.includes(month);
+                const weekMatch = weeks.length === 0 || weeks.includes(week);
+                const paramMatch = parameters.length === 0 || parameters.includes(parameter);
+                
+                return yearMatch && monthMatch && weekMatch && paramMatch;
+            });
+
+            // Filter recruiter data separately with recruiter filter
+            dashboardData.filteredRecruiterData = dashboardData.recruiterData.filter(row => {
+                const year = (row['Financial Year'] || row['Finanical Year'] || '').toString().trim();
+                // Handle both 'Month' and 'Month ' (with trailing space) - TRIM the value!
+                const month = (row['Month'] || row['Month '] || '').toString().trim();
+                // Handle both 'Week' and 'Week ' (with trailing space)
+                const week = (row['Week'] || row['Week '] || '').toString().trim();
+                // Handle both 'Parameter' and 'Parameter ' (with trailing space) - TRIM the value!
+                const parameter = (row['Parameter'] || row['Parameter '] || '').toString().trim();
+                const recruiter = (row['Recruiter Name'] || '').toString().trim();
+                
+                const yearMatch = years.length === 0 || years.includes(year);
+                const monthMatch = months.length === 0 || months.includes(month);
+                const weekMatch = weeks.length === 0 || weeks.includes(week);
+                const paramMatch = parameters.length === 0 || parameters.includes(parameter);
+                const recruiterMatch = recruiters.length === 0 || recruiters.includes(recruiter);
+                
+                return yearMatch && monthMatch && weekMatch && paramMatch && recruiterMatch;
+            });
+
+            // Update available options in other filters based on current selection
+            updateFilterOptions();
+            renderView();
+        }
+
+        function updateFilterOptions() {
+            // This function updates filter options based on what's currently selected
+            // Making filters smart and context-aware
+            const currentData = dashboardData.filteredData;
+            
+            // Update available months based on selected years
+            if (dashboardData.selectedFilters.years.length > 0) {
+                const availableMonths = new Set();
+                currentData.forEach(row => {
+                    if (row.Month) availableMonths.add(row.Month);
+                });
+                // Optionally update month filter options here
+            }
+        }
+
+        function resetFilters() {
+            $('#yearFilter').val(null).trigger('change');
+            $('#monthFilter').val(null).trigger('change');
+            $('#weekFilter').val(null).trigger('change');
+            $('#recruiterFilter').val(null).trigger('change');
+            $('#parameterFilter').val(null).trigger('change');
+            
+            dashboardData.selectedFilters = {
+                years: [],
+                months: [],
+                weeks: [],
+                recruiters: [],
+                parameters: []
+            };
+            
+            applySmartFilters();
+        }
+
+        function showView(view) {
+            currentView = view;
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            event.target.closest('.nav-link').classList.add('active');
+            renderView();
+        }
+
+        function renderView() {
+            // Destroy existing charts
+            Object.values(dashboardData.charts).forEach(chart => {
+                if (chart && chart.destroy) chart.destroy();
+            });
+            dashboardData.charts = {};
+
+            switch(currentView) {
+                case 'overall': renderOverallView(); break;
+                case 'weekly': renderWeeklyView(); break;
+                case 'monthly': renderMonthlyView(); break;
+                case 'yearly': renderYearlyView(); break;
+                case 'recruiters': renderRecruitersView(); break;
+                case 'parameters': renderParametersView(); break;
+                case 'comparison': renderComparisonView(); break;
+                case 'trends': renderTrendsView(); break;
+                case 'manual': renderUserManual(); break;
+            }
+        }
+
+        function calculateStats(data) {
+            let totalPop = 0, totalOpp = 0, totalPass = 0, totalFail = 0, totalNA = 0;
+            
+            data.forEach(row => {
+                totalPop += row['Total Population'] || 0;
+                totalOpp += row['Opportunity Count'] || 0;
+                totalPass += row['Opportunity Pass'] || 0;
+                totalFail += row['Opportunity Fail'] || 0;
+                totalNA += row['Opportunity NA'] || 0;
+            });
+
+            const accuracy = totalPass + totalFail > 0 ? 
+                ((totalPass / (totalPass + totalFail)) * 100).toFixed(2) : 0;
+            const errorRate = totalPass + totalFail > 0 ? 
+                ((totalFail / (totalPass + totalFail)) * 100).toFixed(2) : 0;
+            const sampleRate = totalPop > 0 ? 
+                ((totalOpp / totalPop) * 100).toFixed(2) : 0;
+
+            return { totalPop, totalOpp, totalPass, totalFail, totalNA, accuracy, errorRate, sampleRate };
+        }
+
+        // Render functions for each view
+        function renderOverallView() {
+            if (dashboardData.filteredData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-database" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Data Available</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload an Excel file to view dashboard insights.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const stats = calculateStats(dashboardData.filteredData);
+            
+            const paramStats = {};
+            dashboardData.filteredData.forEach(row => {
+                const param = (row['Parameter'] || row['Parameter '] || '').toString().trim();
+                if (!param) return;
+                if (!paramStats[param]) {
+                    paramStats[param] = { pass: 0, fail: 0, na: 0 };
+                }
+                paramStats[param].pass += row['Opportunity Pass'] || 0;
+                paramStats[param].fail += row['Opportunity Fail'] || 0;
+                paramStats[param].na += row['Opportunity NA'] || 0;
+            });
+
+            let bestParam = { name: 'N/A', accuracy: 0 };
+            let worstParam = { name: 'N/A', accuracy: 100 };
+            
+            Object.entries(paramStats).forEach(([param, data]) => {
+                if (data.pass + data.fail > 0) {
+                    const acc = (data.pass / (data.pass + data.fail)) * 100;
+                    if (acc > bestParam.accuracy) {
+                        bestParam = { name: param, accuracy: acc.toFixed(2) };
+                    }
+                    if (acc < worstParam.accuracy) {
+                        worstParam = { name: param, accuracy: acc.toFixed(2) };
+                    }
+                }
+            });
+
+            const html = `
+                <div class="insights-panel">
+                    <h3 style="margin-bottom: 20px; font-size: 20px;">
+                        <i class="fas fa-lightbulb"></i> Key Insights
+                    </h3>
+                    <div class="insights-grid">
+                        <div class="insight-item">
+                            <div class="insight-label">Overall Accuracy</div>
+                            <div class="insight-value">${stats.accuracy}%</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Sample Coverage</div>
+                            <div class="insight-value">${stats.sampleRate}%</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Error Rate</div>
+                            <div class="insight-value">${stats.errorRate}%</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Total Audits</div>
+                            <div class="insight-value">${stats.totalOpp}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Best Parameter</div>
+                            <div class="insight-value" style="font-size: 16px;">${bestParam.name.substring(0,15)}${bestParam.name.length > 15 ? '...' : ''}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${bestParam.accuracy}% accuracy</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Needs Attention</div>
+                            <div class="insight-value" style="font-size: 16px;">${worstParam.name.substring(0,15)}${worstParam.name.length > 15 ? '...' : ''}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${worstParam.accuracy}% accuracy</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4 style="margin-bottom: 8px;">🎯 Key Highlights</h4>
+                        <p style="font-size: 13px; line-height: 1.6;">
+                            • ${Object.keys(paramStats).length} parameters tracked across ${stats.totalOpp} audits<br>
+                            • ${stats.accuracy >= 95 ? '✅ Excellent performance - Above 95% accuracy target' : 
+                                stats.accuracy >= 85 ? '⚠️ Good performance - Within acceptable range' : 
+                                '❌ Performance below target - Immediate action required'}<br>
+                            • Top performing parameter: ${bestParam.name} (${bestParam.accuracy}%)<br>
+                            • Focus area: ${worstParam.name} requires improvement
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div style="color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Total Population</div>
+                        <div class="stat-value">${stats.totalPop.toLocaleString()}</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Candidates in pipeline</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Audits Completed</div>
+                        <div class="stat-value">${stats.totalOpp.toLocaleString()}</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Sample: ${stats.sampleRate}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Pass Rate</div>
+                        <div class="stat-value" style="color: var(--success-color);">${stats.totalPass}</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">${stats.accuracy}% accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color: var(--text-secondary); font-size: 13px; text-transform: uppercase;">Failures</div>
+                        <div class="stat-value" style="color: var(--danger-color);">${stats.totalFail}</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">${stats.errorRate}% error rate</div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Audit Distribution</h3>
+                    <canvas id="distributionChart" style="max-height: 300px;"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-table"></i> Parameter-wise Accuracy</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Pass</th>
+                                    <th>Fail</th>
+                                    <th>NA</th>
+                                    <th>Total</th>
+                                    <th>Accuracy %</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Object.entries(paramStats).sort((a, b) => a[0].localeCompare(b[0])).map(([param, data]) => {
+                                    const acc = data.pass + data.fail > 0 ? 
+                                        ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 'N/A';
+                                    const total = data.pass + data.fail + data.na;
+                                    const badge = acc === 'N/A' ? '' :
+                                        parseFloat(acc) >= 95 ? '<span class="badge badge-success"><i class="fas fa-check"></i> Excellent</span>' :
+                                        parseFloat(acc) >= 85 ? '<span class="badge badge-warning"><i class="fas fa-exclamation-triangle"></i> Good</span>' :
+                                        '<span class="badge badge-danger"><i class="fas fa-times"></i> Needs Attention</span>';
+                                    return `
+                                        <tr>
+                                            <td><strong>${param}</strong></td>
+                                            <td>${data.pass}</td>
+                                            <td>${data.fail}</td>
+                                            <td>${data.na}</td>
+                                            <td>${total}</td>
+                                            <td><strong>${acc}${acc !== 'N/A' ? '%' : ''}</strong></td>
+                                            <td>${badge}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+
+            const ctx = document.getElementById('distributionChart');
+            if (ctx) {
+                dashboardData.charts.distribution = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pass', 'Fail', 'NA'],
+                        datasets: [{
+                            data: [stats.totalPass, stats.totalFail, stats.totalNA],
+                            backgroundColor: ['#10B981', '#EF4444', '#9CA3AF']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            datalabels: {
+                                formatter: (value, ctx) => {
+                                    const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    return value > 0 ? ((value * 100 / sum).toFixed(1) + '%') : '';
+                                },
+                                color: '#fff',
+                                font: { weight: 'bold', size: 14 }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
+            }
+        }
+
+        // Weekly View
+        function renderWeeklyView() {
+            if (dashboardData.filteredData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-calendar-week" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Weekly Data Available</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload data to view weekly trends.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const weeklyData = {};
+            dashboardData.filteredData.forEach(row => {
+                const week = row['Week'] || 'Unknown';
+                if (!weeklyData[week]) {
+                    weeklyData[week] = { pass: 0, fail: 0, na: 0, total: 0 };
+                }
+                weeklyData[week].pass += row['Opportunity Pass'] || 0;
+                weeklyData[week].fail += row['Opportunity Fail'] || 0;
+                weeklyData[week].na += row['Opportunity NA'] || 0;
+                weeklyData[week].total += row['Opportunity Count'] || 0;
+            });
+
+            const weeks = Object.keys(weeklyData).sort((a, b) => {
+                const numA = parseInt(a);
+                const numB = parseInt(b);
+                return isNaN(numA) || isNaN(numB) ? 0 : numA - numB;
+            });
+
+            const html = `
+                <div class="insights-panel">
+                    <h3><i class="fas fa-calendar-week"></i> Weekly Performance Analysis</h3>
+                    <p style="margin-top: 10px; opacity: 0.9;">Tracking ${weeks.length} weeks of audit data</p>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-line"></i> Weekly Accuracy Trends</h3>
+                    <canvas id="weeklyChart" style="max-height: 400px;"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-table"></i> Weekly Performance Details</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Week</th>
+                                    <th>Total Audits</th>
+                                    <th>Pass</th>
+                                    <th>Fail</th>
+                                    <th>NA</th>
+                                    <th>Accuracy %</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${weeks.map((week, idx) => {
+                                    const data = weeklyData[week];
+                                    const acc = data.pass + data.fail > 0 ? 
+                                        ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 'N/A';
+                                    
+                                    let trend = '';
+                                    if (idx > 0) {
+                                        const prevWeek = weeks[idx - 1];
+                                        const prevAcc = weeklyData[prevWeek].pass + weeklyData[prevWeek].fail > 0 ? 
+                                            (weeklyData[prevWeek].pass / (weeklyData[prevWeek].pass + weeklyData[prevWeek].fail)) * 100 : 0;
+                                        const currentAcc = parseFloat(acc);
+                                        if (!isNaN(currentAcc)) {
+                                            if (currentAcc > prevAcc) {
+                                                trend = '<span class="badge badge-success"><i class="fas fa-arrow-up"></i> Improved</span>';
+                                            } else if (currentAcc < prevAcc) {
+                                                trend = '<span class="badge badge-danger"><i class="fas fa-arrow-down"></i> Declined</span>';
+                                            } else {
+                                                trend = '<span class="badge badge-warning">= Stable</span>';
+                                            }
+                                        }
+                                    }
+
+                                    return `
+                                        <tr>
+                                            <td><strong>Week ${week}</strong></td>
+                                            <td>${data.total}</td>
+                                            <td>${data.pass}</td>
+                                            <td>${data.fail}</td>
+                                            <td>${data.na}</td>
+                                            <td><strong>${acc}${acc !== 'N/A' ? '%' : ''}</strong></td>
+                                            <td>${trend}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+
+            const ctx = document.getElementById('weeklyChart');
+            if (ctx) {
+                dashboardData.charts.weekly = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: weeks.map(w => `Week ${w}`),
+                        datasets: [{
+                            label: 'Accuracy %',
+                            data: weeks.map(week => {
+                                const data = weeklyData[week];
+                                return data.pass + data.fail > 0 ? 
+                                    ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 0;
+                            }),
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { callback: value => value + '%' }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Monthly View
+        function renderMonthlyView() {
+            if (dashboardData.filteredData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-calendar-alt" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Monthly Data Available</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload data to view monthly trends.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const monthlyData = {};
+            dashboardData.filteredData.forEach(row => {
+                const month = (row['Month'] || row['Month '] || 'Unknown').toString().trim();
+                if (!monthlyData[month]) {
+                    monthlyData[month] = { pass: 0, fail: 0, na: 0, total: 0 };
+                }
+                monthlyData[month].pass += row['Opportunity Pass'] || 0;
+                monthlyData[month].fail += row['Opportunity Fail'] || 0;
+                monthlyData[month].na += row['Opportunity NA'] || 0;
+                monthlyData[month].total += row['Opportunity Count'] || 0;
+            });
+
+            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            const months = Object.keys(monthlyData).sort((a, b) => 
+                monthOrder.indexOf(a) - monthOrder.indexOf(b)
+            );
+
+            const html = `
+                <div class="insights-panel">
+                    <h3><i class="fas fa-calendar-alt"></i> Monthly Performance Overview</h3>
+                    <p style="margin-top: 10px; opacity: 0.9;">Analyzing ${months.length} months of audit activity</p>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Monthly Accuracy & Volume</h3>
+                    <canvas id="monthlyChart" style="max-height: 400px;"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-table"></i> Monthly Performance Summary</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Total Audits</th>
+                                    <th>Pass</th>
+                                    <th>Fail</th>
+                                    <th>Accuracy %</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${months.map(month => {
+                                    const data = monthlyData[month];
+                                    const acc = data.pass + data.fail > 0 ? 
+                                        ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 'N/A';
+                                    const badge = acc === 'N/A' ? '' :
+                                        parseFloat(acc) >= 95 ? '<span class="badge badge-success">Excellent</span>' :
+                                        parseFloat(acc) >= 85 ? '<span class="badge badge-warning">Good</span>' :
+                                        '<span class="badge badge-danger">Needs Work</span>';
+                                    return `
+                                        <tr>
+                                            <td><strong>${month}</strong></td>
+                                            <td>${data.total}</td>
+                                            <td>${data.pass}</td>
+                                            <td>${data.fail}</td>
+                                            <td><strong>${acc}${acc !== 'N/A' ? '%' : ''}</strong></td>
+                                            <td>${badge}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+
+            const ctx = document.getElementById('monthlyChart');
+            if (ctx) {
+                dashboardData.charts.monthly = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Audit Volume',
+                            data: months.map(m => monthlyData[m].total),
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            yAxisID: 'y'
+                        }, {
+                            label: 'Accuracy %',
+                            data: months.map(m => {
+                                const data = monthlyData[m];
+                                return data.pass + data.fail > 0 ? 
+                                    ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 0;
+                            }),
+                            type: 'line',
+                            borderColor: '#10B981',
+                            backgroundColor: 'transparent',
+                            yAxisID: 'y1',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                title: { display: true, text: 'Volume' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                position: 'right',
+                                title: { display: true, text: 'Accuracy %' },
+                                grid: { drawOnChartArea: false },
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Yearly View
+        function renderYearlyView() {
+            if (dashboardData.auditData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-chart-bar" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Yearly Data Available</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload data to view yearly trends.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const yearlyData = {};
+            dashboardData.auditData.forEach(row => {
+                const year = (row['Financial Year'] || row['Finanical Year'] || 'Unknown').toString();
+                if (!yearlyData[year]) {
+                    yearlyData[year] = { pass: 0, fail: 0, na: 0, total: 0 };
+                }
+                yearlyData[year].pass += row['Opportunity Pass'] || 0;
+                yearlyData[year].fail += row['Opportunity Fail'] || 0;
+                yearlyData[year].na += row['Opportunity NA'] || 0;
+                yearlyData[year].total += row['Opportunity Count'] || 0;
+            });
+
+            const years = Object.keys(yearlyData).sort();
+
+            const html = `
+                <div class="insights-panel">
+                    <h3><i class="fas fa-chart-bar"></i> Year-over-Year Analysis</h3>
+                    <p style="margin-top: 10px; opacity: 0.9;">Comparing ${years.length} financial year(s) of performance</p>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-line"></i> Annual Performance Trends</h3>
+                    <canvas id="yearlyChart" style="max-height: 350px;"></canvas>
+                </div>
+
+                <div class="stats-grid">
+                    ${years.map(year => {
+                        const data = yearlyData[year];
+                        const acc = data.pass + data.fail > 0 ? 
+                            ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 'N/A';
+                        return `
+                            <div class="stat-card">
+                                <div style="color: var(--text-secondary); font-size: 13px;">FY ${year}</div>
+                                <div class="stat-value">${data.total}</div>
+                                <div style="font-size: 14px; margin: 10px 0;">
+                                    <span style="color: var(--success-color);">✓ ${data.pass}</span> | 
+                                    <span style="color: var(--danger-color);">✗ ${data.fail}</span>
+                                </div>
+                                <div style="font-size: 16px; font-weight: 700;">
+                                    Accuracy: ${acc}${acc !== 'N/A' ? '%' : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+
+            const ctx = document.getElementById('yearlyChart');
+            if (ctx) {
+                dashboardData.charts.yearly = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: years.map(y => `FY ${y}`),
+                        datasets: [{
+                            label: 'Pass',
+                            data: years.map(y => yearlyData[y].pass),
+                            backgroundColor: '#10B981'
+                        }, {
+                            label: 'Fail',
+                            data: years.map(y => yearlyData[y].fail),
+                            backgroundColor: '#EF4444'
+                        }, {
+                            label: 'NA',
+                            data: years.map(y => yearlyData[y].na),
+                            backgroundColor: '#9CA3AF'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            datalabels: { display: false }
+                        },
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Recruiters View - FIXED VERSION
+        function renderRecruitersView() {
+            if (dashboardData.filteredRecruiterData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-users" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Recruiter Data Available</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload data to view recruiter performance.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const recruiterStats = {};
+            dashboardData.filteredRecruiterData.forEach(row => {
+                const recruiter = row['Recruiter Name'];
+                // Normalize audit score - trim spaces and handle various formats
+                let score = row['Audit Score'];
+                if (typeof score === 'string') {
+                    score = score.trim(); // Remove leading/trailing spaces
+                }
+                
+                if (!recruiter) return;
+
+                if (!recruiterStats[recruiter]) {
+                    recruiterStats[recruiter] = { pass: 0, fail: 0, na: 0, total: 0 };
+                }
+
+                recruiterStats[recruiter].total++;
+                // Check for pass (1 or '1')
+                if (score === 1 || score === '1') {
+                    recruiterStats[recruiter].pass++;
+                // Check for fail (0 or '0')
+                } else if (score === 0 || score === '0') {
+                    recruiterStats[recruiter].fail++;
+                // Everything else is NA (including 'NA', 'NA ', 'na', etc.)
+                } else {
+                    recruiterStats[recruiter].na++;
+                }
+            });
+
+            const recruiters = Object.entries(recruiterStats)
+                .map(([name, data]) => ({
+                    name,
+                    ...data,
+                    accuracy: data.pass + data.fail > 0 ? 
+                        ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 0
+                }))
+                .sort((a, b) => parseFloat(b.accuracy) - parseFloat(a.accuracy));
+
+            const top10 = recruiters.slice(0, 10);
+
+            // Count recruiters by performance
+            const excellentCount = recruiters.filter(r => parseFloat(r.accuracy) >= 95).length;
+            const goodCount = recruiters.filter(r => parseFloat(r.accuracy) >= 85 && parseFloat(r.accuracy) < 95).length;
+            const needsAttentionCount = recruiters.filter(r => parseFloat(r.accuracy) < 85).length;
+            const avgAccuracy = recruiters.length > 0 ? (recruiters.reduce((sum, r) => sum + parseFloat(r.accuracy), 0) / recruiters.length).toFixed(2) : 0;
+
+            const html = `
+                <div class="insights-panel">
+                    <h3 style="margin-bottom: 20px; font-size: 20px;">
+                        <i class="fas fa-users"></i> Recruiter Performance Insights
+                    </h3>
+                    <div class="insights-grid">
+                        <div class="insight-item">
+                            <div class="insight-label">Total Recruiters</div>
+                            <div class="insight-value">${recruiters.length}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Top Performer</div>
+                            <div class="insight-value" style="font-size: 16px;">${top10[0]?.name.substring(0,15) || 'N/A'}${(top10[0]?.name.length > 15 ? '...' : '')}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${top10[0]?.accuracy || 0}% accuracy</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Excellent (≥95%)</div>
+                            <div class="insight-value">${excellentCount}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${recruiters.length > 0 ? (excellentCount/recruiters.length*100).toFixed(1) : 0}% of team</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Good (85-95%)</div>
+                            <div class="insight-value">${goodCount}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${recruiters.length > 0 ? (goodCount/recruiters.length*100).toFixed(1) : 0}% of team</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Needs Attention</div>
+                            <div class="insight-value">${needsAttentionCount}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${recruiters.length > 0 ? (needsAttentionCount/recruiters.length*100).toFixed(1) : 0}% of team</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Avg Team Accuracy</div>
+                            <div class="insight-value">${avgAccuracy}%</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4 style="margin-bottom: 8px;">🎯 Team Performance Summary</h4>
+                        <p style="font-size: 13px; line-height: 1.6;">
+                            • ${recruiters.length} recruiters tracked with ${dashboardData.filteredRecruiterData.length} total audits<br>
+                            • ${excellentCount} recruiters performing at excellent level (≥95% accuracy)<br>
+                            • ${needsAttentionCount > 0 ? `⚠️ ${needsAttentionCount} recruiter(s) need coaching and support` : '✅ All recruiters performing above 85% threshold'}<br>
+                            • Focus on continuous improvement for consistent quality
+                        </p>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-trophy"></i> Top 10 Recruiters by Accuracy</h3>
+                    <canvas id="recruiterChart" style="max-height: 400px;"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-table"></i> Recruiter Rankings</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Recruiter</th>
+                                    <th>Total Audits</th>
+                                    <th>Pass</th>
+                                    <th>Fail</th>
+                                    <th>Accuracy %</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${recruiters.map((r, idx) => {
+                                    const badge = parseFloat(r.accuracy) >= 95 ? '<span class="badge badge-success">⭐ Top</span>' :
+                                        parseFloat(r.accuracy) >= 85 ? '<span class="badge badge-warning">Good</span>' :
+                                        '<span class="badge badge-danger">Needs Coaching</span>';
+                                    return `
+                                        <tr>
+                                            <td><strong>#${idx + 1}</strong></td>
+                                            <td>${r.name}</td>
+                                            <td>${r.total}</td>
+                                            <td>${r.pass}</td>
+                                            <td>${r.fail}</td>
+                                            <td><strong>${r.accuracy}%</strong></td>
+                                            <td>${badge}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+
+            const ctx = document.getElementById('recruiterChart');
+            if (ctx) {
+                dashboardData.charts.recruiter = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: top10.map(r => r.name.length > 20 ? r.name.substring(0, 18) + '...' : r.name),
+                        datasets: [{
+                            label: 'Accuracy %',
+                            data: top10.map(r => r.accuracy),
+                            backgroundColor: top10.map(r => 
+                                parseFloat(r.accuracy) >= 95 ? '#10B981' :
+                                parseFloat(r.accuracy) >= 85 ? '#F59E0B' : '#EF4444'
+                            )
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'right',
+                                formatter: v => v + '%',
+                                color: '#1E293B',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            x: { max: 100 }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
+            }
+        }
+
+        // Parameters View
+        function renderParametersView() {
+            if (dashboardData.filteredData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-tasks" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Parameter Data Available</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload data to view parameter analysis.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const paramStats = {};
+            dashboardData.filteredData.forEach(row => {
+                const param = (row['Parameter'] || row['Parameter '] || '').toString().trim();
+                if (!param) return;
+                if (!paramStats[param]) {
+                    paramStats[param] = { pass: 0, fail: 0, na: 0 };
+                }
+                paramStats[param].pass += row['Opportunity Pass'] || 0;
+                paramStats[param].fail += row['Opportunity Fail'] || 0;
+                paramStats[param].na += row['Opportunity NA'] || 0;
+            });
+
+            const params = Object.entries(paramStats)
+                .map(([name, data]) => ({
+                    name,
+                    ...data,
+                    total: data.pass + data.fail + data.na,
+                    accuracy: data.pass + data.fail > 0 ? 
+                        ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 'N/A'
+                }))
+                .sort((a, b) => {
+                    const aVal = a.accuracy === 'N/A' ? -1 : parseFloat(a.accuracy);
+                    const bVal = b.accuracy === 'N/A' ? -1 : parseFloat(b.accuracy);
+                    return bVal - aVal;
+                });
+
+            const html = `
+                <div class="insights-panel">
+                    <h3><i class="fas fa-tasks"></i> Parameter-wise Deep Dive</h3>
+                    <p style="margin-top: 10px; opacity: 0.9;">
+                        Analyzing ${params.length} audit parameters | 
+                        ${params.filter(p => parseFloat(p.accuracy) >= 95).length} parameters above 95%
+                    </p>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Parameter Accuracy Comparison</h3>
+                    <canvas id="parameterChart" style="max-height: 500px;"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-list"></i> Detailed Parameter Analysis</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Total</th>
+                                    <th>Pass</th>
+                                    <th>Fail</th>
+                                    <th>NA</th>
+                                    <th>Accuracy</th>
+                                    <th>Error Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${params.map(p => {
+                                    const errorRate = p.pass + p.fail > 0 ? 
+                                        ((p.fail / (p.pass + p.fail)) * 100).toFixed(2) : 'N/A';
+                                    const badge = p.accuracy === 'N/A' ? '' :
+                                        parseFloat(p.accuracy) >= 95 ? '<span class="badge badge-success">✓ Excellent</span>' :
+                                        parseFloat(p.accuracy) >= 85 ? '<span class="badge badge-warning">⚠ Monitor</span>' :
+                                        '<span class="badge badge-danger">✗ Critical</span>';
+                                    return `
+                                        <tr>
+                                            <td><strong>${p.name}</strong></td>
+                                            <td>${p.total}</td>
+                                            <td>${p.pass}</td>
+                                            <td>${p.fail}</td>
+                                            <td>${p.na}</td>
+                                            <td><strong>${p.accuracy}${p.accuracy !== 'N/A' ? '%' : ''}</strong></td>
+                                            <td>${errorRate}${errorRate !== 'N/A' ? '%' : ''}</td>
+                                            <td>${badge}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+
+            const ctx = document.getElementById('parameterChart');
+            if (ctx && params.length > 0) {
+                const top15 = params.slice(0, 15);
+                dashboardData.charts.parameter = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: top15.map(p => p.name.length > 25 ? p.name.substring(0, 23) + '...' : p.name),
+                        datasets: [{
+                            label: 'Accuracy %',
+                            data: top15.map(p => p.accuracy === 'N/A' ? 0 : p.accuracy),
+                            backgroundColor: top15.map(p => 
+                                p.accuracy === 'N/A' ? '#9CA3AF' :
+                                parseFloat(p.accuracy) >= 95 ? '#10B981' :
+                                parseFloat(p.accuracy) >= 85 ? '#F59E0B' : '#EF4444'
+                            )
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: { display: false }
+                        },
+                        scales: {
+                            y: { max: 100, title: { display: true, text: 'Accuracy %' } },
+                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Comparison View - FULLY FUNCTIONAL
+        function renderComparisonView() {
+            if (dashboardData.filteredData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-exchange-alt" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Data Available for Comparison</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload data to compare metrics.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Get unique months and parameters
+            const months = [...new Set(dashboardData.filteredData.map(r => r.Month).filter(m => m))];
+            const parameters = [...new Set(dashboardData.filteredData.map(r => r.Parameter).filter(p => p))];
+
+            const html = `
+                <div class="insights-panel">
+                    <h3><i class="fas fa-exchange-alt"></i> Comparative Analysis</h3>
+                    <p style="margin-top: 10px; opacity: 0.9;">
+                        Compare performance across different dimensions
+                    </p>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-sliders-h"></i> Month-to-Month Comparison</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Select two months to compare their performance</p>
+                    <div class="comparison-selects">
+                        <div>
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Month 1:</label>
+                            <select id="month1Select" onchange="updateComparison()">
+                                <option value="">Select Month</option>
+                                ${months.map(m => `<option value="${m}">${m}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Month 2:</label>
+                            <select id="month2Select" onchange="updateComparison()">
+                                <option value="">Select Month</option>
+                                ${months.map(m => `<option value="${m}">${m}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="monthComparisonChart" style="max-height: 350px;"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-balance-scale"></i> Parameter-to-Parameter Comparison</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Select two parameters to compare their accuracy</p>
+                    <div class="comparison-selects">
+                        <div>
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Parameter 1:</label>
+                            <select id="param1Select" onchange="updateParamComparison()">
+                                <option value="">Select Parameter</option>
+                                ${parameters.map(p => `<option value="${p}">${p}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Parameter 2:</label>
+                            <select id="param2Select" onchange="updateParamComparison()">
+                                <option value="">Select Parameter</option>
+                                ${parameters.map(p => `<option value="${p}">${p}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="paramComparisonChart" style="max-height: 350px;"></canvas>
+                </div>
+
+                <div id="comparisonStats"></div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+        }
+
+        function updateComparison() {
+            const month1 = document.getElementById('month1Select').value;
+            const month2 = document.getElementById('month2Select').value;
+
+            if (!month1 || !month2) return;
+
+            const month1Data = dashboardData.filteredData.filter(r => r.Month === month1);
+            const month2Data = dashboardData.filteredData.filter(r => r.Month === month2);
+
+            const stats1 = calculateStats(month1Data);
+            const stats2 = calculateStats(month2Data);
+
+            const ctx = document.getElementById('monthComparisonChart');
+            if (dashboardData.charts.monthComparison) {
+                dashboardData.charts.monthComparison.destroy();
+            }
+
+            dashboardData.charts.monthComparison = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pass', 'Fail', 'NA', 'Accuracy %'],
+                    datasets: [{
+                        label: month1,
+                        data: [stats1.totalPass, stats1.totalFail, stats1.totalNA, stats1.accuracy],
+                        backgroundColor: '#3B82F6'
+                    }, {
+                        label: month2,
+                        data: [stats2.totalPass, stats2.totalFail, stats2.totalNA, stats2.accuracy],
+                        backgroundColor: '#10B981'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        datalabels: { display: false }
+                    }
+                }
+            });
+
+            // Show comparison stats
+            document.getElementById('comparisonStats').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4 style="color: var(--adani-blue); margin-bottom: 15px;">${month1}</h4>
+                        <p><strong>Accuracy:</strong> ${stats1.accuracy}%</p>
+                        <p><strong>Total Audits:</strong> ${stats1.totalOpp}</p>
+                        <p><strong>Pass:</strong> ${stats1.totalPass} | <strong>Fail:</strong> ${stats1.totalFail}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4 style="color: var(--success-color); margin-bottom: 15px;">${month2}</h4>
+                        <p><strong>Accuracy:</strong> ${stats2.accuracy}%</p>
+                        <p><strong>Total Audits:</strong> ${stats2.totalOpp}</p>
+                        <p><strong>Pass:</strong> ${stats2.totalPass} | <strong>Fail:</strong> ${stats2.totalFail}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4 style="color: var(--warning-color); margin-bottom: 15px;">Difference</h4>
+                        <p><strong>Accuracy:</strong> ${(stats2.accuracy - stats1.accuracy).toFixed(2)}%</p>
+                        <p><strong>Total Audits:</strong> ${stats2.totalOpp - stats1.totalOpp}</p>
+                        <p>${stats2.accuracy > stats1.accuracy ? '✅ Improvement' : '❌ Decline'}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateParamComparison() {
+            const param1 = document.getElementById('param1Select').value;
+            const param2 = document.getElementById('param2Select').value;
+
+            if (!param1 || !param2) return;
+
+            const param1Data = dashboardData.filteredData.filter(r => r.Parameter === param1);
+            const param2Data = dashboardData.filteredData.filter(r => r.Parameter === param2);
+
+            const stats1 = calculateStats(param1Data);
+            const stats2 = calculateStats(param2Data);
+
+            const ctx = document.getElementById('paramComparisonChart');
+            if (dashboardData.charts.paramComparison) {
+                dashboardData.charts.paramComparison.destroy();
+            }
+
+            dashboardData.charts.paramComparison = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Accuracy %', 'Pass Count', 'Sample Size', 'Error Rate Inverse'],
+                    datasets: [{
+                        label: param1.substring(0, 30),
+                        data: [
+                            stats1.accuracy,
+                            (stats1.totalPass / Math.max(stats1.totalPass, stats2.totalPass)) * 100,
+                            (stats1.totalOpp / Math.max(stats1.totalOpp, stats2.totalOpp)) * 100,
+                            100 - stats1.errorRate
+                        ],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#3B82F6',
+                        borderWidth: 2
+                    }, {
+                        label: param2.substring(0, 30),
+                        data: [
+                            stats2.accuracy,
+                            (stats2.totalPass / Math.max(stats1.totalPass, stats2.totalPass)) * 100,
+                            (stats2.totalOpp / Math.max(stats1.totalOpp, stats2.totalOpp)) * 100,
+                            100 - stats2.errorRate
+                        ],
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: '#10B981',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Trends View
+        function renderTrendsView() {
+            if (dashboardData.auditData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-chart-line" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;"></i>
+                        <h3 style="margin-top: 20px; color: var(--text-secondary);">No Trend Data Available</h3>
+                        <p style="color: var(--text-secondary); margin-top: 10px;">Please upload data to view trend analysis.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const monthlyTrends = {};
+            dashboardData.auditData.forEach(row => {
+                const month = row.Month;
+                if (!month) return;
+                if (!monthlyTrends[month]) {
+                    monthlyTrends[month] = { pass: 0, fail: 0, total: 0 };
+                }
+                monthlyTrends[month].pass += row['Opportunity Pass'] || 0;
+                monthlyTrends[month].fail += row['Opportunity Fail'] || 0;
+                monthlyTrends[month].total += row['Opportunity Count'] || 0;
+            });
+
+            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            const months = Object.keys(monthlyTrends).sort((a, b) => 
+                monthOrder.indexOf(a) - monthOrder.indexOf(b)
+            );
+
+            const trendData = months.map(month => {
+                const data = monthlyTrends[month];
+                return data.pass + data.fail > 0 ? 
+                    ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 0;
+            });
+
+            const movingAvg = trendData.map((val, idx) => {
+                if (idx < 2) return val;
+                const avg = (parseFloat(trendData[idx]) + parseFloat(trendData[idx-1]) + parseFloat(trendData[idx-2])) / 3;
+                return avg.toFixed(2);
+            });
+
+            const html = `
+                <div class="insights-panel">
+                    <h3><i class="fas fa-chart-line"></i> Trend Analysis & Forecasting</h3>
+                    <p style="margin-top: 10px; opacity: 0.9;">
+                        Historical patterns and predictive insights from ${months.length} months of data
+                    </p>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-trending-up"></i> Accuracy Trends & Moving Average</h3>
+                    <canvas id="trendChart" style="max-height: 400px;"></canvas>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div style="color: var(--text-secondary); font-size: 13px;">Current Trend</div>
+                        <div class="stat-value" style="color: var(--success-color);">
+                            ${trendData.length > 1 && parseFloat(trendData[trendData.length-1]) > parseFloat(trendData[trendData.length-2]) ? '↑' : '↓'}
+                        </div>
+                        <div style="font-size: 14px;">
+                            ${trendData.length > 1 && parseFloat(trendData[trendData.length-1]) > parseFloat(trendData[trendData.length-2]) ? 'Improving' : 'Declining'}
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color: var(--text-secondary); font-size: 13px;">Average Accuracy</div>
+                        <div class="stat-value">
+                            ${trendData.length > 0 ? (trendData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / trendData.length).toFixed(2) : 0}%
+                        </div>
+                        <div style="font-size: 14px;">Across all periods</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color: var(--text-secondary); font-size: 13px;">3-Month Avg</div>
+                        <div class="stat-value">
+                            ${movingAvg.length > 0 ? movingAvg[movingAvg.length - 1] : 0}%
+                        </div>
+                        <div style="font-size: 14px;">Recent performance</div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-info-circle"></i> Trend Insights</h3>
+                    <div style="padding: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: var(--adani-blue);">📊 Pattern Analysis:</strong>
+                            <p style="margin-top: 5px; color: var(--text-secondary);">
+                                ${months.length >= 6 ? 
+                                    'Sufficient data for reliable trend analysis. The 3-month moving average smooths out short-term fluctuations.' :
+                                    'Limited historical data. More months needed for reliable pattern detection.'}
+                            </p>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: var(--adani-blue);">🎯 Performance Trajectory:</strong>
+                            <p style="margin-top: 5px; color: var(--text-secondary);">
+                                ${trendData.length > 1 ? 
+                                    (parseFloat(trendData[trendData.length-1]) > parseFloat(trendData[0]) ? 
+                                        'Overall upward trend observed from start to present. Positive momentum maintained.' :
+                                        'Performance has declined from initial levels. Review and corrective actions recommended.') :
+                                    'Insufficient data for trajectory analysis.'}
+                            </p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--adani-blue);">💡 Recommendations:</strong>
+                            <p style="margin-top: 5px; color: var(--text-secondary);">
+                                ${months.length > 0 && parseFloat(trendData[trendData.length-1]) < 85 ?
+                                    '⚠️ Recent accuracy below target. Focus on parameter-specific training and recruiter coaching.' :
+                                    '✓ Performance within acceptable range. Continue current practices and monitor for variations.'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+
+            const ctx = document.getElementById('trendChart');
+            if (ctx && months.length > 0) {
+                dashboardData.charts.trend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Actual Accuracy %',
+                            data: trendData,
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: '3-Month Moving Average',
+                            data: movingAvg,
+                            borderColor: '#10B981',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            datalabels: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: { display: true, text: 'Accuracy %' }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // User Manual
+        function renderUserManual() {
+            const html = `
+                <div class="insights-panel">
+                    <h3><i class="fas fa-book"></i> User Manual - Adani Recruitment Audit Dashboard v4.0</h3>
+                    <p style="margin-top: 10px; opacity: 0.9;">
+                        Comprehensive guide to dashboard features, calculations, and best practices
+                    </p>
+                </div>
+
+                <div class="manual-section">
+                    <h3>📚 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#getting-started">Getting Started</a></li>
+                        <li><a href="#data-upload">Data Upload & Requirements</a></li>
+                        <li><a href="#filters">Advanced Multi-Select Filters</a></li>
+                        <li><a href="#views">Dashboard Views Explained</a></li>
+                        <li><a href="#metrics">Metrics & Calculations</a></li>
+                        <li><a href="#export">Export Functionality</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                        <li><a href="#troubleshooting">Troubleshooting</a></li>
+                    </ul>
+                </div>
+
+                <div class="manual-section" id="getting-started">
+                    <h3>🚀 Getting Started</h3>
+                    <h4>Overview</h4>
+                    <p>The Adani Recruitment Audit Dashboard is a comprehensive analytics tool designed to monitor and improve the quality assurance (QA) process in recruitment. It provides real-time insights into audit performance, recruiter efficiency, and parameter compliance.</p>
+                    
+                    <h4>Key Features:</h4>
+                    <ul>
+                        <li><strong>8 Different Views:</strong> Overall, Weekly, Monthly, Yearly, Recruiters, Parameters, Comparison, Trends</li>
+                        <li><strong>Multi-Select Filters:</strong> Smart cascading filters for precise data analysis</li>
+                        <li><strong>Interactive Charts:</strong> Visual representations using Chart.js library</li>
+                        <li><strong>PDF Export:</strong> Generate professional reports with customizable content</li>
+                        <li><strong>Dark/Light Theme:</strong> Toggle between themes for comfortable viewing</li>
+                        <li><strong>Real-time Calculations:</strong> Instant updates based on filter selections</li>
+                    </ul>
+                </div>
+
+                <div class="manual-section" id="data-upload">
+                    <h3>📤 Data Upload & Requirements</h3>
+                    <h4>File Format</h4>
+                    <p>The dashboard requires an Excel file (.xlsx or .xls) with two specific sheets:</p>
+                    
+                    <h4>Sheet 1: "Audit Count"</h4>
+                    <p>Required columns:</p>
+                    <ul>
+                        <li><code>Financial Year</code> or <code>Finanical Year</code> - The fiscal year (e.g., "2024")</li>
+                        <li><code>Month</code> - Month name (e.g., "January", "February")</li>
+                        <li><code>Week</code> - Week number (e.g., 1, 2, 3)</li>
+                        <li><code>Parameter</code> - Audit parameter name</li>
+                        <li><code>Total Population</code> - Total number of candidates</li>
+                        <li><code>Opportunity Count</code> - Number of audits conducted</li>
+                        <li><code>Opportunity Pass</code> - Number of passed audits</li>
+                        <li><code>Opportunity Fail</code> - Number of failed audits</li>
+                        <li><code>Opportunity NA</code> - Number of NA audits</li>
+                    </ul>
+                    
+                    <h4>Sheet 2: "Recruiter Wise Data"</h4>
+                    <p>Required columns:</p>
+                    <ul>
+                        <li><code>Recruiter Name</code> - Full name of the recruiter</li>
+                        <li><code>Audit Score</code> - Score: 1 (Pass), 0 (Fail), or NA</li>
+                    </ul>
+                    
+                    <h4>Upload Process:</h4>
+                    <ol>
+                        <li>Click the "Upload Data" button in the header</li>
+                        <li>Select your Excel file from the file browser</li>
+                        <li>Wait for confirmation message</li>
+                        <li>Dashboard will automatically populate with your data</li>
+                    </ol>
+                </div>
+
+                <div class="manual-section" id="filters">
+                    <h3>🔍 Advanced Multi-Select Filters</h3>
+                    <h4>Filter Types:</h4>
+                    <ul>
+                        <li><strong>Year Filter:</strong> Select multiple financial years</li>
+                        <li><strong>Month Filter:</strong> Select multiple months</li>
+                        <li><strong>Recruiter Filter:</strong> Select specific recruiters</li>
+                        <li><strong>Parameter Filter:</strong> Select specific audit parameters</li>
+                    </ul>
+                    
+                    <h4>How Multi-Select Works:</h4>
+                    <ul>
+                        <li>Click on a filter dropdown to see available options</li>
+                        <li>Select multiple items by clicking on them</li>
+                        <li>Selected items appear as blue tags</li>
+                        <li>Click the × on a tag to remove it</li>
+                        <li>Use "Clear all" link to remove all selections</li>
+                        <li>Dashboard updates automatically after each selection</li>
+                    </ul>
+                    
+                    <h4>Smart Cascading Filters:</h4>
+                    <p>Filters intelligently update available options based on previous selections. For example:</p>
+                    <ul>
+                        <li>Select Year 2024 → Month filter shows only months with data in 2024</li>
+                        <li>Select specific parameters → Other filters adjust to show relevant options</li>
+                    </ul>
+                    
+                    <h4>Reset Filters:</h4>
+                    <p>Click the "Reset Filters" button to clear all selections and view complete dataset.</p>
+                </div>
+
+                <div class="manual-section" id="views">
+                    <h3>📊 Dashboard Views Explained</h3>
+                    
+                    <h4>1. Overall View</h4>
+                    <p><strong>Purpose:</strong> Provides a comprehensive summary of all audit activities</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Key Insights Panel - 6 key metrics at a glance</li>
+                        <li>Statistics Cards - Total Population, Audits Completed, Pass Rate, Failures</li>
+                        <li>Audit Distribution Chart - Doughnut chart showing Pass/Fail/NA distribution</li>
+                        <li>Parameter-wise Accuracy Table - Detailed breakdown by parameter</li>
+                    </ul>
+                    
+                    <h4>2. Weekly View</h4>
+                    <p><strong>Purpose:</strong> Track week-over-week performance trends</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Weekly Accuracy Trends - Line chart showing accuracy progression</li>
+                        <li>Weekly Performance Table - Detailed metrics with trend indicators (↑↓)</li>
+                        <li>Comparison with previous week</li>
+                    </ul>
+                    
+                    <h4>3. Monthly View</h4>
+                    <p><strong>Purpose:</strong> Analyze monthly patterns and seasonality</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Monthly Accuracy & Volume - Dual-axis chart (bar + line)</li>
+                        <li>Monthly Performance Summary - Tabular view with performance badges</li>
+                        <li>Fiscal year ordering (July to June)</li>
+                    </ul>
+                    
+                    <h4>4. Yearly View</h4>
+                    <p><strong>Purpose:</strong> Year-over-year comparison and long-term trends</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Annual Performance Trends - Stacked bar chart</li>
+                        <li>Year-wise Statistics Cards - Individual cards per fiscal year</li>
+                        <li>Pass/Fail/NA breakdown by year</li>
+                    </ul>
+                    
+                    <h4>5. Recruiter View</h4>
+                    <p><strong>Purpose:</strong> Individual recruiter performance analysis</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Top 10 Recruiters Chart - Horizontal bar chart</li>
+                        <li>Complete Recruiter Rankings Table - All recruiters sorted by accuracy</li>
+                        <li>Performance badges (Top, Good, Needs Coaching)</li>
+                    </ul>
+                    
+                    <h4>6. Parameter View</h4>
+                    <p><strong>Purpose:</strong> Deep dive into specific audit parameters</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Parameter Accuracy Comparison - Top 15 parameters chart</li>
+                        <li>Detailed Parameter Analysis Table - All parameters with error rates</li>
+                        <li>Status indicators (Excellent, Monitor, Critical)</li>
+                    </ul>
+                    
+                    <h4>7. Comparison View</h4>
+                    <p><strong>Purpose:</strong> Side-by-side comparison of different entities</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Month-to-Month Comparison - Select any two months to compare</li>
+                        <li>Parameter-to-Parameter Comparison - Radar chart visualization</li>
+                        <li>Statistical difference calculation</li>
+                        <li>Improvement/Decline indicators</li>
+                    </ul>
+                    
+                    <h4>8. Trend Analysis</h4>
+                    <p><strong>Purpose:</strong> Historical trends and predictive insights</p>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Actual Accuracy vs Moving Average - Dual line chart</li>
+                        <li>3-Month Moving Average for smoothing</li>
+                        <li>Trend direction indicators</li>
+                        <li>AI-generated insights and recommendations</li>
+                    </ul>
+                </div>
+
+                <div class="manual-section" id="metrics">
+                    <h3>📐 Metrics & Calculations</h3>
+                    
+                    <h4>Core Metrics:</h4>
+                    
+                    <div class="formula-box">
+                        <strong>Accuracy %</strong><br>
+                        = (Opportunity Pass / (Opportunity Pass + Opportunity Fail)) × 100
+                    </div>
+                    
+                    <div class="formula-box">
+                        <strong>Error Rate %</strong><br>
+                        = (Opportunity Fail / (Opportunity Pass + Opportunity Fail)) × 100
+                    </div>
+                    
+                    <div class="formula-box">
+                        <strong>Sample Rate %</strong><br>
+                        = (Opportunity Count / Total Population) × 100
+                    </div>
+                    
+                    <div class="formula-box">
+                        <strong>3-Month Moving Average</strong><br>
+                        = (Month[n] + Month[n-1] + Month[n-2]) / 3
+                    </div>
+                    
+                    <h4>Performance Thresholds:</h4>
+                    <ul>
+                        <li><strong style="color: var(--success-color);">Excellent:</strong> ≥ 95% accuracy</li>
+                        <li><strong style="color: var(--warning-color);">Good:</strong> 85% - 94.9% accuracy</li>
+                        <li><strong style="color: var(--danger-color);">Needs Attention:</strong> < 85% accuracy</li>
+                    </ul>
+                    
+                    <h4>Statistical Notes:</h4>
+                    <ul>
+                        <li>NA (Not Applicable) values are excluded from accuracy calculations</li>
+                        <li>If both Pass and Fail are zero, accuracy is shown as "N/A"</li>
+                        <li>All percentages are rounded to 2 decimal places</li>
+                        <li>Moving averages require at least 3 data points</li>
+                    </ul>
+                </div>
+
+                <div class="manual-section" id="export">
+                    <h3>📄 Export Functionality</h3>
+                    
+                    <h4>How to Export:</h4>
+                    <ol>
+                        <li>Click "Export PDF" button in the header</li>
+                        <li>Select which view to export from dropdown</li>
+                        <li>Choose which elements to include:
+                            <ul>
+                                <li>Charts & Visualizations</li>
+                                <li>Data Tables</li>
+                                <li>Key Insights Panel</li>
+                                <li>Statistics Cards</li>
+                            </ul>
+                        </li>
+                        <li>Click "Generate PDF" button</li>
+                        <li>Wait for processing (may take 10-30 seconds)</li>
+                        <li>PDF will automatically download</li>
+                    </ol>
+                    
+                    <h4>Export Features:</h4>
+                    <ul>
+                        <li>High-resolution chart rendering</li>
+                        <li>Maintains current filter selections</li>
+                        <li>Professional layout with header and footer</li>
+                        <li>Automatic page breaks for large tables</li>
+                        <li>Date stamp included</li>
+                    </ul>
+                    
+                    <h4>Tips for Best Results:</h4>
+                    <ul>
+                        <li>Wait for all charts to fully load before exporting</li>
+                        <li>Larger datasets may take longer to process</li>
+                        <li>Uncheck elements you don't need for faster generation</li>
+                        <li>Exported PDF filename includes view name and date</li>
+                    </ul>
+                </div>
+
+                <div class="manual-section" id="best-practices">
+                    <h3>✅ Best Practices</h3>
+                    
+                    <h4>Data Management:</h4>
+                    <ul>
+                        <li>Upload fresh data regularly for accurate insights</li>
+                        <li>Ensure Excel file follows the exact column naming convention</li>
+                        <li>Remove any extra sheets from Excel file</li>
+                        <li>Validate data completeness before upload</li>
+                        <li>Keep a backup of your original data files</li>
+                    </ul>
+                    
+                    <h4>Analysis Workflow:</h4>
+                    <ol>
+                        <li>Start with Overall View to understand big picture</li>
+                        <li>Use filters to drill down into specific areas</li>
+                        <li>Check Trends View for patterns</li>
+                        <li>Review Recruiter View for team performance</li>
+                        <li>Use Comparison View for targeted analysis</li>
+                        <li>Export findings for presentations</li>
+                    </ol>
+                    
+                    <h4>Performance Monitoring:</h4>
+                    <ul>
+                        <li>Set up weekly reviews using Weekly View</li>
+                        <li>Track monthly trends for pattern recognition</li>
+                        <li>Monitor parameters below 85% accuracy closely</li>
+                        <li>Use recruiter rankings for coaching priorities</li>
+                        <li>Compare month-over-month for improvement tracking</li>
+                    </ul>
+                    
+                    <h4>Reporting:</h4>
+                    <ul>
+                        <li>Use PDF export for stakeholder presentations</li>
+                        <li>Include Key Insights panel in all exports</li>
+                        <li>Customize exports based on audience (leadership vs operations)</li>
+                        <li>Document filter selections used for each report</li>
+                    </ul>
+                </div>
+
+                <div class="manual-section" id="troubleshooting">
+                    <h3>🔧 Troubleshooting</h3>
+                    
+                    <h4>Common Issues & Solutions:</h4>
+                    
+                    <h4>Issue: "Required sheets not found" error</h4>
+                    <p><strong>Solution:</strong></p>
+                    <ul>
+                        <li>Ensure sheet names are exactly "Audit Count" and "Recruiter Wise Data"</li>
+                        <li>Check for trailing spaces in sheet names</li>
+                        <li>Remove any other sheets from the Excel file</li>
+                    </ul>
+                    
+                    <h4>Issue: Charts not displaying</h4>
+                    <p><strong>Solution:</strong></p>
+                    <ul>
+                        <li>Refresh the page</li>
+                        <li>Ensure data was uploaded successfully</li>
+                        <li>Check browser console for errors (F12)</li>
+                        <li>Try a different browser (Chrome recommended)</li>
+                    </ul>
+                    
+                    <h4>Issue: Filters not working</h4>
+                    <p><strong>Solution:</strong></p>
+                    <ul>
+                        <li>Click "Reset Filters" button</li>
+                        <li>Reload the page and upload data again</li>
+                        <li>Ensure jQuery and Select2 libraries loaded properly</li>
+                    </ul>
+                    
+                    <h4>Issue: PDF export fails or takes too long</h4>
+                    <p><strong>Solution:</strong></p>
+                    <ul>
+                        <li>Uncheck some export elements to reduce file size</li>
+                        <li>Wait for all charts to fully render before exporting</li>
+                        <li>Try exporting a different view with less data</li>
+                        <li>Check browser's download settings</li>
+                    </ul>
+                    
+                    <h4>Issue: "No data available" message appears</h4>
+                    <p><strong>Solution:</strong></p>
+                    <ul>
+                        <li>Upload data using "Upload Data" button</li>
+                        <li>Reset filters if applied</li>
+                        <li>Verify Excel file contains data rows</li>
+                        <li>Check column names match requirements</li>
+                    </ul>
+                    
+                    <h4>Issue: Accuracy calculations seem wrong</h4>
+                    <p><strong>Solution:</strong></p>
+                    <ul>
+                        <li>Verify source data is correct in Excel file</li>
+                        <li>Remember: NA values are excluded from accuracy calculations</li>
+                        <li>Check filters - you might be viewing a subset of data</li>
+                        <li>Refer to calculation formulas in Metrics section</li>
+                    </ul>
+                    
+                    <h4>Browser Compatibility:</h4>
+                    <ul>
+                        <li><strong>Recommended:</strong> Google Chrome (latest version)</li>
+                        <li><strong>Supported:</strong> Firefox, Edge, Safari (latest versions)</li>
+                        <li><strong>Note:</strong> Internet Explorer is not supported</li>
+                    </ul>
+                    
+                    <h4>Need More Help?</h4>
+                    <p>If issues persist:</p>
+                    <ul>
+                        <li>Check browser console for error messages (F12 → Console tab)</li>
+                        <li>Clear browser cache and reload</li>
+                        <li>Try using a different device or browser</li>
+                        <li>Contact your IT support team</li>
+                    </ul>
+                </div>
+
+                <div class="manual-section">
+                    <h3>📋 Quick Reference Card</h3>
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>How To</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Upload Data</td>
+                                <td>Click "Upload Data" → Select Excel file</td>
+                            </tr>
+                            <tr>
+                                <td>Change View</td>
+                                <td>Click menu items in left sidebar</td>
+                            </tr>
+                            <tr>
+                                <td>Apply Filters</td>
+                                <td>Click filter dropdowns → Select items</td>
+                            </tr>
+                            <tr>
+                                <td>Reset Filters</td>
+                                <td>Click "Reset Filters" button in header</td>
+                            </tr>
+                            <tr>
+                                <td>Export PDF</td>
+                                <td>Click "Export PDF" → Select options → Generate</td>
+                            </tr>
+                            <tr>
+                                <td>Toggle Theme</td>
+                                <td>Click theme button (moon/sun icon)</td>
+                            </tr>
+                            <tr>
+                                <td>Compare Metrics</td>
+                                <td>Go to Comparison View → Select items to compare</td>
+                            </tr>
+                            <tr>
+                                <td>View Manual</td>
+                                <td>Click "User Manual" in left sidebar</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="manual-section">
+                    <h3>📜 Version History</h3>
+                    <p><strong>v4.1 - Recruiter Filter Fixed Edition (Current)</strong></p>
+                    <ul>
+                        <li>✅ Multi-select filters with smart cascading</li>
+                        <li>✅ Fully functional Comparison View</li>
+                        <li>✅ PDF export functionality with customization</li>
+                        <li>✅ Comprehensive user manual</li>
+                        <li>✅ Improved UI/UX with better feedback</li>
+                        <li>✅ Bug fixes and performance improvements</li>
+                    </ul>
+                    
+                    <p><strong>v3.0 - All Views Functional</strong></p>
+                    <ul>
+                        <li>Added all 8 dashboard views</li>
+                        <li>Implemented chart visualizations</li>
+                        <li>Added theme toggle functionality</li>
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+        }
+
+        // Export Modal Functions
+        function openExportModal() {
+            document.getElementById('exportModal').style.display = 'block';
+            document.getElementById('exportViewSelect').value = currentView;
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('exportModal');
+            if (event.target == modal) {
+                closeExportModal();
+            }
+        }
+
+        // PDF Export Function
+        async function exportToPDF() {
+            const viewToExport = document.getElementById('exportViewSelect').value;
+            const includeCharts = document.getElementById('includeCharts').checked;
+            const includeTables = document.getElementById('includeTables').checked;
+            const includeInsights = document.getElementById('includeInsights').checked;
+            const includeStats = document.getElementById('includeStats').checked;
+
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            closeExportModal();
+
+            // Switch to the view to export if not current
+            const previousView = currentView;
+            if (viewToExport !== currentView) {
+                currentView = viewToExport;
+                renderView();
+                // Wait for render to complete
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                
+                // Add title
+                pdf.setFontSize(20);
+                pdf.setTextColor(30, 58, 138);
+                pdf.text('Adani Recruitment Audit Dashboard', pageWidth / 2, 20, { align: 'center' });
+                
+                pdf.setFontSize(12);
+                pdf.setTextColor(100, 116, 139);
+                pdf.text(`View: ${viewToExport.charAt(0).toUpperCase() + viewToExport.slice(1)}`, pageWidth / 2, 28, { align: 'center' });
+                pdf.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 34, { align: 'center' });
+                
+                let yPosition = 45;
+
+                // Get content elements
+                const content = document.getElementById('dashboardContent');
+                
+                if (includeInsights) {
+                    const insights = content.querySelector('.insights-panel');
+                    if (insights) {
+                        const canvas = await html2canvas(insights, { scale: 2, backgroundColor: null });
+                        const imgData = canvas.toDataURL('image/png');
+                        const imgWidth = pageWidth - 20;
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        
+                        if (yPosition + imgHeight > pageHeight - 20) {
+                            pdf.addPage();
+                            yPosition = 20;
+                        }
+                        
+                        pdf.addImage(imgData, 'PNG', 10, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                }
+
+                if (includeStats) {
+                    const stats = content.querySelector('.stats-grid');
+                    if (stats) {
+                        const canvas = await html2canvas(stats, { scale: 2, backgroundColor: null });
+                        const imgData = canvas.toDataURL('image/png');
+                        const imgWidth = pageWidth - 20;
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        
+                        if (yPosition + imgHeight > pageHeight - 20) {
+                            pdf.addPage();
+                            yPosition = 20;
+                        }
+                        
+                        pdf.addImage(imgData, 'PNG', 10, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                }
+
+                if (includeCharts) {
+                    const charts = content.querySelectorAll('.chart-card');
+                    for (const chart of charts) {
+                        const canvas = await html2canvas(chart, { scale: 2, backgroundColor: '#ffffff' });
+                        const imgData = canvas.toDataURL('image/png');
+                        const imgWidth = pageWidth - 20;
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        
+                        if (yPosition + imgHeight > pageHeight - 20) {
+                            pdf.addPage();
+                            yPosition = 20;
+                        }
+                        
+                        pdf.addImage(imgData, 'PNG', 10, yPosition, imgWidth, imgHeight);
+                        yPosition += imgHeight + 10;
+                    }
+                }
+
+                // Save PDF
+                pdf.save(`Adani_Audit_Dashboard_${viewToExport}_${new Date().toISOString().split('T')[0]}.pdf`);
+                
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                // Switch back to previous view if changed
+                if (previousView !== viewToExport) {
+                    currentView = previousView;
+                    renderView();
+                }
+                
+                alert('✅ PDF exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                document.getElementById('loadingOverlay').style.display = 'none';
+                alert('❌ Error generating PDF. Please try again.');
+            }
+        }
+
+        // Initialize dashboard
+        console.log('Adani Recruitment Audit Dashboard v4.1 - Recruiter Filter Fixed Edition initialized');
+    
+        // ============================================
+        // AUDIO DESCRIPTION FUNCTIONALITY
+        // ============================================
+        let audioEnabled = true;
+        let utterance = null;
+
+        function speakText(text) {
+            if (!audioEnabled || !window.speechSynthesis) return;
+            
+            // Cancel any ongoing speech
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            
+            utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleAudioDescriptions() {
+            audioEnabled = !audioEnabled;
+            const statusText = audioEnabled ? "Audio descriptions enabled" : "Audio descriptions disabled";
+            speakText(statusText);
+            
+            // Update button visual feedback
+            const audioBtn = document.querySelector('[onclick="toggleAudioDescriptions()"]');
+            if (audioBtn) {
+                audioBtn.style.opacity = audioEnabled ? '1' : '0.5';
+            }
+        }
+
+        // Add audio descriptions to navigation
+        function showView(view) {
+            currentView = view;
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            event.target.closest('.nav-link').classList.add('active');
+            
+            // Audio description
+            const viewNames = {
+                'overall': 'Overall dashboard view',
+                'weekly': 'Weekly performance analysis',
+                'monthly': 'Monthly trends view',
+                'yearly': 'Yearly comparison view',
+                'recruiters': 'Recruiter performance rankings',
+                'parameters': 'Parameter-wise audit analysis',
+                'comparison': 'Recruiter comparison tool',
+                'trends': 'Trend analysis and forecasting',
+                'manual': 'User manual and documentation'
+            };
+            
+            speakText(`Switched to ${viewNames[view] || view}`);
+            renderView();
+        }
+
+        // Override toggle functions with audio
+        function toggleUploadSection() {
+            const section = document.getElementById('uploadSection');
+            const isActive = section.classList.toggle('active');
+            speakText(isActive ? "Upload section opened" : "Upload section closed");
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('themeIcon').className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            speakText(`Switched to ${currentTheme} theme`);
+            renderView();
+        }
+
+        function resetFilters() {
+            $('#yearFilter').val(null).trigger('change');
+            $('#monthFilter').val(null).trigger('change');
+            $('#weekFilter').val(null).trigger('change');
+            $('#recruiterFilter').val(null).trigger('change');
+            $('#parameterFilter').val(null).trigger('change');
+            
+            dashboardData.selectedFilters = {
+                years: [],
+                months: [],
+                weeks: [],
+                recruiters: [],
+                parameters: []
+            };
+            
+            speakText("All filters have been reset");
+            applySmartFilters();
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').style.display = 'block';
+            speakText("Export options dialog opened. Select view and elements to include in PDF");
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+            speakText("Export dialog closed");
+        }
+
+        function exportToPDF() {
+            speakText("Generating PDF report. Please wait.");
+            // Rest of the export function remains the same
+            const view = document.getElementById('exportViewSelect').value;
+            const includeCharts = document.getElementById('includeCharts').checked;
+            const includeTables = document.getElementById('includeTables').checked;
+            const includeInsights = document.getElementById('includeInsights').checked;
+            const includeStats = document.getElementById('includeStats').checked;
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+
+                html2canvas(document.getElementById('dashboardContent'), {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const imgWidth = 210;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    const imgData = canvas.toDataURL('image/jpeg', 0.8);
+
+                    doc.setFontSize(20);
+                    doc.text('Adani Recruitment Audit Report', 105, 15, { align: 'center' });
+                    doc.setFontSize(12);
+                    doc.text(`View: ${view.toUpperCase()}`, 105, 25, { align: 'center' });
+                    doc.text(`Generated: ${new Date().toLocaleString()}`, 105, 32, { align: 'center' });
+
+                    doc.addImage(imgData, 'JPEG', 0, 40, imgWidth, Math.min(imgHeight, 250));
+
+                    doc.save(`Adani_Audit_${view}_${Date.now()}.pdf`);
+                    
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    closeExportModal();
+                    speakText("PDF report generated successfully and downloaded");
+                }).catch(error => {
+                    console.error('PDF generation error:', error);
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    alert('Error generating PDF');
+                    speakText("Error generating PDF. Please try again");
+                });
+            }, 100);
+        }
+
+        // Add audio feedback to filter changes
+        $(document).ready(function() {
+            $('#yearFilter').on('change', function() {
+                const selected = $(this).val();
+                if (selected && selected.length > 0) {
+                    speakText(`Year filter updated. ${selected.length} year${selected.length > 1 ? 's' : ''} selected`);
+                } else {
+                    speakText("Year filter cleared");
+                }
+            });
+
+            $('#monthFilter').on('change', function() {
+                const selected = $(this).val();
+                if (selected && selected.length > 0) {
+                    speakText(`Month filter updated. ${selected.length} month${selected.length > 1 ? 's' : ''} selected`);
+                } else {
+                    speakText("Month filter cleared");
+                }
+            });
+
+            $('#weekFilter').on('change', function() {
+                const selected = $(this).val();
+                if (selected && selected.length > 0) {
+                    speakText(`Week filter updated. ${selected.length} week${selected.length > 1 ? 's' : ''} selected`);
+                } else {
+                    speakText("Week filter cleared");
+                }
+            });
+
+            $('#recruiterFilter').on('change', function() {
+                const selected = $(this).val();
+                if (selected && selected.length > 0) {
+                    speakText(`Recruiter filter updated. ${selected.length} recruiter${selected.length > 1 ? 's' : ''} selected`);
+                } else {
+                    speakText("Recruiter filter cleared");
+                }
+            });
+
+            $('#parameterFilter').on('change', function() {
+                const selected = $(this).val();
+                if (selected && selected.length > 0) {
+                    speakText(`Parameter filter updated. ${selected.length} parameter${selected.length > 1 ? 's' : ''} selected`);
+                } else {
+                    speakText("Parameter filter cleared");
+                }
+            });
+        });
+
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9a7b60a9ebeaa5d3","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.9.1","token":"4edd5f8ec12a48cfa682ab8261b80a79"}' crossorigin="anonymous"></script>
+</body>
+</html>
