@@ -1364,7 +1364,15 @@
                             y: {
                                 beginAtZero: true,
                                 max: 100,
+                                grid: {
+                                    display: false
+                                },
                                 ticks: { callback: value => value + '%' }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
                             }
                         }
                     },
@@ -1583,7 +1591,7 @@
                                     font: { size: 13, weight: 'bold' }
                                 },
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
+                                    display: false
                                 }
                             },
                             y1: {
@@ -1594,7 +1602,9 @@
                                     text: 'Accuracy %',
                                     font: { size: 13, weight: 'bold' }
                                 },
-                                grid: { drawOnChartArea: false },
+                                grid: { 
+                                    display: false
+                                },
                                 max: 100,
                                 ticks: {
                                     callback: function(value) {
@@ -1734,8 +1744,18 @@
                             }
                         },
                         scales: {
-                            x: { stacked: true },
-                            y: { stacked: true }
+                            x: { 
+                                stacked: true,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: { 
+                                stacked: true,
+                                grid: {
+                                    display: false
+                                }
+                            }
                         }
                     },
                     plugins: [ChartDataLabels]
@@ -1943,8 +1963,16 @@
                         scales: {
                             x: { 
                                 max: 100,
+                                grid: {
+                                    display: false
+                                },
                                 ticks: {
                                     callback: value => value + '%'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
                                 }
                             }
                         }
@@ -2091,28 +2119,36 @@
                                 display: true,
                                 anchor: 'end',
                                 align: 'top',
-                                offset: 4,
+                                offset: 6,
                                 formatter: (value) => value > 0 ? `${parseFloat(value).toFixed(1)}%` : '',
-                                color: '#1E293B',
+                                color: '#FFFFFF',
                                 font: { 
                                     weight: 'bold',
-                                    size: 11
+                                    size: 13
                                 },
-                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                                borderRadius: 3,
-                                padding: { top: 3, bottom: 3, left: 5, right: 5 }
+                                backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                                borderRadius: 4,
+                                padding: { top: 5, bottom: 5, left: 8, right: 8 }
                             }
                         },
                         scales: {
                             y: { 
-                                max: 100, 
+                                max: 100,
+                                grid: {
+                                    display: false
+                                },
                                 title: { 
                                     display: true, 
                                     text: 'Accuracy %',
                                     font: { size: 13, weight: 'bold' }
                                 }
                             },
-                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                            x: { 
+                                grid: {
+                                    display: false
+                                },
+                                ticks: { maxRotation: 45, minRotation: 45 }
+                            }
                         }
                     },
                     plugins: [ChartDataLabels]
@@ -2623,7 +2659,7 @@
                                     font: { size: 14, weight: 'bold' }
                                 },
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
+                                    display: false
                                 }
                             },
                             x: {
