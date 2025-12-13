@@ -534,6 +534,9 @@
             <li><a class="nav-link" onclick="showView('trends')">
                 <i class="fas fa-chart-line"></i> Trend Analysis
             </a></li>
+            <li><a class="nav-link" onclick="showView('rotm')">
+                <i class="fas fa-trophy"></i> Recruiter of the Month
+            </a></li>
             <li><a class="nav-link" onclick="showView('manual')">
                 <i class="fas fa-book"></i> User Manual
             </a></li>
@@ -635,6 +638,7 @@
                     <option value="parameters">Parameter View</option>
                     <option value="comparison">Comparison View</option>
                     <option value="trends">Trend Analysis</option>
+                    <option value="rotm">Recruiter of the Month</option>
                 </select>
             </div>
             
@@ -966,6 +970,7 @@
                 case 'parameters': renderParametersView(); break;
                 case 'comparison': renderComparisonView(); break;
                 case 'trends': renderTrendsView(); break;
+                case 'rotm': renderRecruiterOfTheMonth(); break;
                 case 'manual': renderUserManual(); break;
             }
         }
@@ -1153,6 +1158,10 @@
 
             const ctx = document.getElementById('distributionChart');
             if (ctx) {
+                // Destroy existing chart if it exists
+                if (dashboardData.charts.distribution) {
+                    dashboardData.charts.distribution.destroy();
+                }
                 dashboardData.charts.distribution = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
@@ -2673,6 +2682,227 @@
             }
         }
 
+        // Recruiter of the Month
+        function renderRecruiterOfTheMonth() {
+            if (dashboardData.filteredRecruiterData.length === 0) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="chart-card">
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                            <i class="fas fa-trophy" style="font-size: 64px; opacity: 0.3; margin-bottom: 20px;"></i>
+                            <h2 style="margin-bottom: 10px;">No Recruiter Data Available</h2>
+                            <p>Please upload data to view Recruiter of the Month</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Calculate recruiter performance for each month
+            const monthlyRecruiterPerformance = {};
+            
+            // Process audit data to get monthly performance
+            dashboardData.filteredData.forEach(audit => {
+                const month = audit.Month;
+                if (!monthlyRecruiterPerformance[month]) {
+                    monthlyRecruiterPerformance[month] = {};
+                }
+            });
+
+            // Process recruiter data
+            dashboardData.filteredRecruiterData.forEach(rec => {
+                const month = rec['Month'];
+                const recruiterName = rec['Auditor / Recruiter Name']?.trim() || 'Unknown';
+                
+                if (!monthlyRecruiterPerformance[month]) {
+                    monthlyRecruiterPerformance[month] = {};
+                }
+                
+                if (!monthlyRecruiterPerformance[month][recruiterName]) {
+                    monthlyRecruiterPerformance[month][recruiterName] = {
+                        name: recruiterName,
+                        totalAudits: 0,
+                        pass: 0,
+                        fail: 0,
+                        accuracy: 0,
+                        qualityScore: 0
+                    };
+                }
+                
+                const stats = monthlyRecruiterPerformance[month][recruiterName];
+                stats.totalAudits += rec['Total Audits'] || 0;
+                stats.pass += rec['Pass'] || 0;
+                stats.fail += rec['Fail'] || 0;
+                
+                // Calculate accuracy
+                const totalChecked = stats.pass + stats.fail;
+                stats.accuracy = totalChecked > 0 ? ((stats.pass / totalChecked) * 100).toFixed(2) : 0;
+                
+                // Calculate quality score (weighted: 60% accuracy + 40% volume)
+                const maxVolume = Math.max(...Object.values(monthlyRecruiterPerformance[month]).map(r => r.totalAudits || 1));
+                const volumeScore = maxVolume > 0 ? (stats.totalAudits / maxVolume) * 100 : 0;
+                stats.qualityScore = (parseFloat(stats.accuracy) * 0.6) + (volumeScore * 0.4);
+            });
+
+            // Find winner for each month
+            const monthlyWinners = [];
+            Object.entries(monthlyRecruiterPerformance).forEach(([month, recruiters]) => {
+                const recruiterArray = Object.values(recruiters);
+                if (recruiterArray.length > 0) {
+                    // Sort by quality score (accuracy weighted with volume)
+                    recruiterArray.sort((a, b) => b.qualityScore - a.qualityScore);
+                    const winner = recruiterArray[0];
+                    
+                    // Selection criteria
+                    const meetsMinimum = winner.totalAudits >= 10 && parseFloat(winner.accuracy) >= 85;
+                    
+                    monthlyWinners.push({
+                        month: month,
+                        winner: meetsMinimum ? winner : null,
+                        topPerformers: recruiterArray.slice(0, 5),
+                        meetsMinimum: meetsMinimum,
+                        minCriteria: "Minimum 10 audits & 85% accuracy required"
+                    });
+                }
+            });
+
+            const html = `
+                <div class="insights-panel">
+                    <h2><i class="fas fa-trophy" style="color: #FFD700;"></i> Recruiter of the Month Recognition</h2>
+                    <p style="margin-top: 10px; opacity: 0.9;">
+                        Recognizing outstanding performance based on Quality Score = (60% Accuracy + 40% Volume)
+                    </p>
+                    <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 20px;">
+                        <div class="stat-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 5px;">Selection Criteria</div>
+                            <div class="stat-value" style="font-size: 18px; color: var(--adani-blue);">
+                                <i class="fas fa-check-circle"></i> Min. 10 Audits
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 5px;">Minimum Accuracy</div>
+                            <div class="stat-value" style="font-size: 18px; color: var(--success-color);">
+                                <i class="fas fa-percentage"></i> 85%
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 5px;">Quality Formula</div>
+                            <div class="stat-value" style="font-size: 18px; color: var(--warning-color);">
+                                <i class="fas fa-calculator"></i> 60% + 40%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${monthlyWinners.map(data => `
+                    <div class="chart-card" style="background: linear-gradient(135deg, ${data.winner && data.meetsMinimum ? 'var(--bg-card)' : '#FEF3C7'}, var(--bg-card));">
+                        <h3 class="chart-title">
+                            <i class="fas fa-calendar-alt"></i> ${data.month}
+                            ${data.winner && data.meetsMinimum ? 
+                                '<span style="float: right; color: #FFD700;"><i class="fas fa-trophy"></i> Winner</span>' : 
+                                '<span style="float: right; color: #F59E0B;"><i class="fas fa-exclamation-triangle"></i> No Qualified Winner</span>'
+                            }
+                        </h3>
+                        
+                        ${data.winner && data.meetsMinimum ? `
+                            <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 30px; border-radius: 12px; text-align: center; margin: 20px 0; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
+                                <i class="fas fa-award" style="font-size: 48px; color: white; margin-bottom: 15px;"></i>
+                                <h2 style="color: white; margin: 10px 0; font-size: 28px;">${data.winner.name}</h2>
+                                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 10px; backdrop-filter: blur(10px);">
+                                        <div style="color: rgba(255,255,255,0.9); font-size: 12px; margin-bottom: 5px;">Quality Score</div>
+                                        <div style="color: white; font-size: 24px; font-weight: bold;">${data.winner.qualityScore.toFixed(2)}</div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 10px; backdrop-filter: blur(10px);">
+                                        <div style="color: rgba(255,255,255,0.9); font-size: 12px; margin-bottom: 5px;">Accuracy</div>
+                                        <div style="color: white; font-size: 24px; font-weight: bold;">${data.winner.accuracy}%</div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 10px; backdrop-filter: blur(10px);">
+                                        <div style="color: rgba(255,255,255,0.9); font-size: 12px; margin-bottom: 5px;">Total Audits</div>
+                                        <div style="color: white; font-size: 24px; font-weight: bold;">${data.winner.totalAudits}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : `
+                            <div style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+                                <i class="fas fa-info-circle" style="font-size: 32px; color: #F59E0B; margin-bottom: 10px;"></i>
+                                <p style="color: #92400E; font-weight: 600; margin: 10px 0;">No recruiter met the minimum criteria this month</p>
+                                <p style="color: #B45309; font-size: 14px;">${data.minCriteria}</p>
+                            </div>
+                        `}
+                        
+                        <h4 style="margin-top: 30px; color: var(--adani-blue); margin-bottom: 15px;">
+                            <i class="fas fa-medal"></i> Top 5 Performers
+                        </h4>
+                        <div style="overflow-x: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Recruiter Name</th>
+                                        <th>Quality Score</th>
+                                        <th>Accuracy %</th>
+                                        <th>Total Audits</th>
+                                        <th>Pass</th>
+                                        <th>Fail</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.topPerformers.map((perf, idx) => {
+                                        const qualified = perf.totalAudits >= 10 && parseFloat(perf.accuracy) >= 85;
+                                        const rankIcon = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+                                        const badge = qualified ? 
+                                            '<span class="badge badge-success"><i class="fas fa-check"></i> Qualified</span>' :
+                                            '<span class="badge badge-warning"><i class="fas fa-times"></i> Not Qualified</span>';
+                                        return `
+                                            <tr style="${idx === 0 && qualified ? 'background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), transparent);' : ''}">
+                                                <td><strong>${rankIcon}</strong></td>
+                                                <td><strong>${perf.name}</strong></td>
+                                                <td><strong style="color: var(--adani-blue);">${perf.qualityScore.toFixed(2)}</strong></td>
+                                                <td><strong style="color: ${parseFloat(perf.accuracy) >= 95 ? 'var(--success-color)' : parseFloat(perf.accuracy) >= 85 ? 'var(--warning-color)' : 'var(--danger-color)'};">${perf.accuracy}%</strong></td>
+                                                <td>${perf.totalAudits}</td>
+                                                <td style="color: var(--success-color);">${perf.pass}</td>
+                                                <td style="color: var(--danger-color);">${perf.fail}</td>
+                                                <td>${badge}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `).join('')}
+                
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-info-circle"></i> Selection Criteria Explained</h3>
+                    <div style="line-height: 1.8;">
+                        <h4 style="color: var(--adani-blue); margin-top: 20px;">Quality Score Formula:</h4>
+                        <div class="formula-box">
+                            Quality Score = (Accuracy % × 0.6) + (Volume Score × 0.4)
+                        </div>
+                        <p>Where Volume Score = (Recruiter's Audits / Highest Audits in Month) × 100</p>
+                        
+                        <h4 style="color: var(--adani-blue); margin-top: 20px;">Minimum Qualification Requirements:</h4>
+                        <ul style="margin-left: 20px;">
+                            <li><strong>Minimum Audits:</strong> 10 audits completed in the month</li>
+                            <li><strong>Minimum Accuracy:</strong> 85% accuracy rate (Pass / (Pass + Fail))</li>
+                            <li><strong>Rationale:</strong> Ensures consistent quality while recognizing volume contribution</li>
+                        </ul>
+                        
+                        <h4 style="color: var(--adani-blue); margin-top: 20px;">Why 60-40 Weight?</h4>
+                        <ul style="margin-left: 20px;">
+                            <li><strong>60% Accuracy:</strong> Quality is the primary focus</li>
+                            <li><strong>40% Volume:</strong> Recognizes productivity and contribution</li>
+                            <li>Prevents gaming the system by doing only a few perfect audits</li>
+                            <li>Balances quality with quantity for fair recognition</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dashboardContent').innerHTML = html;
+        }
+
         // User Manual
         function renderUserManual() {
             const html = `
@@ -2704,7 +2934,7 @@
                     
                     <h4>Key Features:</h4>
                     <ul>
-                        <li><strong>8 Different Views:</strong> Overall, Weekly, Monthly, Yearly, Recruiters, Parameters, Comparison, Trends</li>
+                        <li><strong>9 Different Views:</strong> Overall, Weekly, Monthly, Yearly, Recruiters, Parameters, Comparison, Trends, Recruiter of the Month</li>
                         <li><strong>Multi-Select Filters:</strong> Smart cascading filters for precise data analysis</li>
                         <li><strong>Interactive Charts:</strong> Visual representations using Chart.js library</li>
                         <li><strong>PDF Export:</strong> Generate professional reports with customizable content</li>
@@ -2855,6 +3085,30 @@
                         <li>3-Month Moving Average for smoothing</li>
                         <li>Trend direction indicators</li>
                         <li>AI-generated insights and recommendations</li>
+                    </ul>
+                    
+                    <h4>9. Recruiter of the Month 🏆 (NEW!)</h4>
+                    <p><strong>Purpose:</strong> Recognition system for outstanding recruiter performance</p>
+                    <p><strong>Selection Criteria:</strong></p>
+                    <ul>
+                        <li><strong>Quality Score Formula:</strong> (Accuracy % × 0.6) + (Volume Score × 0.4)</li>
+                        <li><strong>Minimum Qualifications:</strong> At least 10 audits completed AND 85% accuracy rate</li>
+                        <li><strong>Volume Score:</strong> (Recruiter's Audits / Highest Audits in Month) × 100</li>
+                    </ul>
+                    <p><strong>Key Elements:</strong></p>
+                    <ul>
+                        <li>Monthly Winners Display - Golden trophy card with key metrics</li>
+                        <li>Top 5 Performers Table - Rankings with qualification status</li>
+                        <li>Selection Criteria Explained - Detailed rationale and formulas</li>
+                        <li>Quality vs Volume Balance - 60% weight on accuracy, 40% on productivity</li>
+                        <li>No Winner Declaration - Shows when no recruiter meets minimum criteria</li>
+                    </ul>
+                    <p><strong>Why This Matters:</strong></p>
+                    <ul>
+                        <li>Motivates recruiters through recognition</li>
+                        <li>Balances quality with quantity for fair assessment</li>
+                        <li>Prevents gaming through minimum thresholds</li>
+                        <li>Encourages consistent high performance</li>
                     </ul>
                 </div>
 
