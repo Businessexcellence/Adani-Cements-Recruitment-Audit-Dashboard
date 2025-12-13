@@ -2702,7 +2702,9 @@
             
             // Process audit data to get monthly performance
             dashboardData.filteredData.forEach(audit => {
-                const month = audit.Month?.trim() || 'Unknown';
+                // Handle both 'Month' and 'Month ' (with trailing space)
+                const monthRaw = audit.Month || audit['Month '] || '';
+                const month = monthRaw.toString().trim() || 'Unknown';
                 if (!monthlyRecruiterPerformance[month]) {
                     monthlyRecruiterPerformance[month] = {};
                 }
@@ -2710,7 +2712,9 @@
 
             // Process recruiter data
             dashboardData.filteredRecruiterData.forEach(rec => {
-                const month = rec['Month']?.trim() || 'Unknown';
+                // Handle both 'Month' and 'Month ' (with trailing space)
+                const monthRaw = rec['Month'] || rec['Month '] || '';
+                const month = monthRaw.toString().trim() || 'Unknown';
                 const recruiterName = rec['Recruiter Name']?.trim() || 'Unknown';
                 
                 if (!monthlyRecruiterPerformance[month]) {
