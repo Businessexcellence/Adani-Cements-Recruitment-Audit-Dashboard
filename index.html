@@ -3433,6 +3433,8 @@
 
         // PDF Export Function
         async function exportToPDF() {
+            speakText("Generating PDF report. Please wait.");
+            
             const viewToExport = document.getElementById('exportViewSelect').value;
             const includeCharts = document.getElementById('includeCharts').checked;
             const includeTables = document.getElementById('includeTables').checked;
@@ -3539,10 +3541,12 @@
                     renderView();
                 }
                 
+                speakText("PDF report generated successfully and downloaded");
                 alert('✅ PDF exported successfully!');
             } catch (error) {
                 console.error('Export error:', error);
                 document.getElementById('loadingOverlay').style.display = 'none';
+                speakText("Error generating PDF. Please try again");
                 alert('❌ Error generating PDF. Please try again.');
             }
         }
@@ -3739,51 +3743,7 @@
             speakText("Export dialog closed");
         }
 
-        function exportToPDF() {
-            speakText("Generating PDF report. Please wait.");
-            // Rest of the export function remains the same
-            const view = document.getElementById('exportViewSelect').value;
-            const includeCharts = document.getElementById('includeCharts').checked;
-            const includeTables = document.getElementById('includeTables').checked;
-            const includeInsights = document.getElementById('includeInsights').checked;
-            const includeStats = document.getElementById('includeStats').checked;
-
-            document.getElementById('loadingOverlay').style.display = 'flex';
-
-            setTimeout(() => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4');
-
-                html2canvas(document.getElementById('dashboardContent'), {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                }).then(canvas => {
-                    const imgWidth = 210;
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    const imgData = canvas.toDataURL('image/jpeg', 0.8);
-
-                    doc.setFontSize(20);
-                    doc.text('Adani Recruitment Audit Report', 105, 15, { align: 'center' });
-                    doc.setFontSize(12);
-                    doc.text(`View: ${view.toUpperCase()}`, 105, 25, { align: 'center' });
-                    doc.text(`Generated: ${new Date().toLocaleString()}`, 105, 32, { align: 'center' });
-
-                    doc.addImage(imgData, 'JPEG', 0, 40, imgWidth, Math.min(imgHeight, 250));
-
-                    doc.save(`Adani_Audit_${view}_${Date.now()}.pdf`);
-                    
-                    document.getElementById('loadingOverlay').style.display = 'none';
-                    closeExportModal();
-                    speakText("PDF report generated successfully and downloaded");
-                }).catch(error => {
-                    console.error('PDF generation error:', error);
-                    document.getElementById('loadingOverlay').style.display = 'none';
-                    alert('Error generating PDF');
-                    speakText("Error generating PDF. Please try again");
-                });
-            }, 100);
-        }
+        // Removed duplicate exportToPDF function - using the better implementation above
 
         // Add audio feedback to filter changes
         $(document).ready(function() {
