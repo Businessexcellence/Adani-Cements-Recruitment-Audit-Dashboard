@@ -16,8 +16,10 @@ Where:
 
 ### Minimum Qualification Requirements
 To be eligible for "Recruiter of the Month", candidates must meet BOTH:
-1. **Minimum Audits**: At least 10 audits completed in the month
-2. **Minimum Accuracy**: At least 85% accuracy rate
+1. **Minimum Audits**: At least 5 audits completed in the month
+2. **Minimum Accuracy**: At least 75% accuracy rate
+
+**Note**: These criteria are set to current performance levels. As team accuracy improves and consistently reaches 90%+, the criteria will be adjusted upward to maintain high standards.
 
 ## Why This Formula?
 
@@ -158,10 +160,12 @@ dashboardData.charts.distribution = new Chart(ctx, {
 ### Criteria Summary
 | Requirement | Threshold | Weight |
 |------------|-----------|--------|
-| Minimum Audits | 10 | Required |
-| Minimum Accuracy | 85% | Required |
+| Minimum Audits | 5 | Required |
+| Minimum Accuracy | 75% | Required |
 | Accuracy Component | Variable | 60% |
 | Volume Component | Variable | 40% |
+
+**Note**: Criteria will be raised to 10+ audits and 85%+ accuracy once team consistently achieves 90%+ accuracy.
 
 ## Future Enhancements (Potential)
 
