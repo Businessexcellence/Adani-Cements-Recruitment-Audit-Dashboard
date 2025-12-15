@@ -1156,12 +1156,15 @@
 
             document.getElementById('dashboardContent').innerHTML = html;
 
-            const ctx = document.getElementById('distributionChart');
-            if (ctx) {
+            const canvas = document.getElementById('distributionChart');
+            if (canvas) {
                 // Destroy existing chart if it exists
                 if (dashboardData.charts.distribution) {
                     dashboardData.charts.distribution.destroy();
                 }
+                
+                // Get fresh context
+                const ctx = canvas.getContext('2d');
                 dashboardData.charts.distribution = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
@@ -1313,8 +1316,9 @@
 
             document.getElementById('dashboardContent').innerHTML = html;
 
-            const ctx = document.getElementById('weeklyChart');
-            if (ctx) {
+            const canvas = document.getElementById('weeklyChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
                 dashboardData.charts.weekly = new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -1474,8 +1478,9 @@
 
             document.getElementById('dashboardContent').innerHTML = html;
 
-            const ctx = document.getElementById('monthlyChart');
-            if (ctx) {
+            const canvas = document.getElementById('monthlyChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
                 dashboardData.charts.monthly = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -1695,8 +1700,9 @@
 
             document.getElementById('dashboardContent').innerHTML = html;
 
-            const ctx = document.getElementById('yearlyChart');
-            if (ctx) {
+            const canvas = document.getElementById('yearlyChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
                 dashboardData.charts.yearly = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -1921,8 +1927,9 @@
 
             document.getElementById('dashboardContent').innerHTML = html;
 
-            const ctx = document.getElementById('recruiterChart');
-            if (ctx) {
+            const canvas = document.getElementById('recruiterChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
                 dashboardData.charts.recruiter = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -2089,9 +2096,10 @@
 
             document.getElementById('dashboardContent').innerHTML = html;
 
-            const ctx = document.getElementById('parameterChart');
-            if (ctx && params.length > 0) {
+            const canvas = document.getElementById('parameterChart');
+            if (canvas && params.length > 0) {
                 const top15 = params.slice(0, 15);
+                const ctx = canvas.getContext('2d');
                 dashboardData.charts.parameter = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -2255,11 +2263,12 @@
             const stats1 = calculateStats(month1Data);
             const stats2 = calculateStats(month2Data);
 
-            const ctx = document.getElementById('monthComparisonChart');
+            const canvas = document.getElementById('monthComparisonChart');
             if (dashboardData.charts.monthComparison) {
                 dashboardData.charts.monthComparison.destroy();
             }
 
+            const ctx = canvas.getContext('2d');
             dashboardData.charts.monthComparison = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -2355,11 +2364,12 @@
             const stats1 = calculateStats(param1Data);
             const stats2 = calculateStats(param2Data);
 
-            const ctx = document.getElementById('paramComparisonChart');
+            const canvas = document.getElementById('paramComparisonChart');
             if (dashboardData.charts.paramComparison) {
                 dashboardData.charts.paramComparison.destroy();
             }
 
+            const ctx = canvas.getContext('2d');
             dashboardData.charts.paramComparison = new Chart(ctx, {
                 type: 'radar',
                 data: {
@@ -2561,8 +2571,9 @@
 
             document.getElementById('dashboardContent').innerHTML = html;
 
-            const ctx = document.getElementById('trendChart');
-            if (ctx && months.length > 0) {
+            const canvas = document.getElementById('trendChart');
+            if (canvas && months.length > 0) {
+                const ctx = canvas.getContext('2d');
                 dashboardData.charts.trend = new Chart(ctx, {
                     type: 'line',
                     data: {
