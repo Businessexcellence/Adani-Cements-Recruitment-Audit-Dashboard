@@ -1206,12 +1206,22 @@
                                         color: '#fff',
                                         font: { 
                                             weight: 'bold', 
-                                            size: 14,
+                                            size: 12,
                                             lineHeight: 1.2
                                         },
                                         textAlign: 'center',
                                         anchor: 'center',
-                                        align: 'center'
+                                        align: 'center',
+                                        clip: true,
+                                        clamp: true
+                                    }
+                                },
+                                layout: {
+                                    padding: {
+                                        top: 10,
+                                        bottom: 10,
+                                        left: 10,
+                                        right: 10
                                     }
                                 }
                             },
@@ -1372,16 +1382,18 @@
                             datalabels: {
                                 display: true,
                                 align: 'top',
-                                offset: 8,
+                                offset: 6,
                                 formatter: (value) => value ? `${parseFloat(value).toFixed(1)}%` : '',
                                 color: '#3B82F6',
                                 font: { 
                                     weight: 'bold', 
-                                    size: 12 
+                                    size: 11 
                                 },
                                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                 borderRadius: 4,
-                                padding: { top: 4, bottom: 4, left: 6, right: 6 }
+                                padding: { top: 3, bottom: 3, left: 5, right: 5 },
+                                clip: true,
+                                clamp: true
                             }
                         },
                         scales: {
@@ -2260,6 +2272,26 @@
             `;
 
             document.getElementById('dashboardContent').innerHTML = html;
+            
+            // Initialize empty canvases to prevent rendering issues
+            setTimeout(() => {
+                const monthCanvas = document.getElementById('monthComparisonChart');
+                const paramCanvas = document.getElementById('paramComparisonChart');
+                
+                if (monthCanvas) {
+                    const ctx = monthCanvas.getContext('2d');
+                    if (ctx) {
+                        console.log('✅ Month comparison canvas ready');
+                    }
+                }
+                
+                if (paramCanvas) {
+                    const ctx = paramCanvas.getContext('2d');
+                    if (ctx) {
+                        console.log('✅ Parameter comparison canvas ready');
+                    }
+                }
+            }, 100);
         }
 
         function updateComparison() {
@@ -2331,12 +2363,30 @@
                             display: true,
                             anchor: 'end',
                             align: 'top',
-                            offset: 4,
+                            offset: 2,
                             formatter: (value) => value > 0 ? Math.round(value) : '',
                             color: '#1E293B',
                             font: { 
                                 weight: 'bold',
-                                size: 12
+                                size: 11
+                            },
+                            clip: true,
+                            clamp: true
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 25,
+                            bottom: 5,
+                            left: 5,
+                            right: 5
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                padding: 5
                             }
                         }
                     }
@@ -2475,11 +2525,20 @@
                             color: '#1E293B',
                             font: { 
                                 weight: 'bold',
-                                size: 11
+                                size: 10
                             },
-                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.85)',
                             borderRadius: 3,
-                            padding: { top: 3, bottom: 3, left: 4, right: 4 }
+                            padding: { top: 2, bottom: 2, left: 3, right: 3 },
+                            clip: true
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 20,
+                            bottom: 10,
+                            left: 10,
+                            right: 10
                         }
                     },
                     scales: {
@@ -2488,8 +2547,14 @@
                             max: 100,
                             ticks: {
                                 stepSize: 20,
+                                padding: 5,
                                 callback: function(value) {
                                     return value + '%';
+                                }
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 11
                                 }
                             }
                         }
