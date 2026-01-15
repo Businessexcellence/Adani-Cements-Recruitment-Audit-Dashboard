@@ -1790,7 +1790,21 @@
                                 borderRadius: 6,
                                 borderWidth: 2,
                                 borderColor: '#ffffff',
-                                padding: { top: 5, bottom: 5, left: 8, right: 8 }
+                                padding: { top: 5, bottom: 5, left: 8, right: 8 },
+                                listeners: {
+                                    enter: function(context) {
+                                        context.element.options.backgroundColor = '#0F172A';
+                                        context.element.options.font.size = 15;
+                                        context.element.options.borderWidth = 3;
+                                        return true;
+                                    },
+                                    leave: function(context) {
+                                        context.element.options.backgroundColor = '#1E40AF';
+                                        context.element.options.font.size = 13;
+                                        context.element.options.borderWidth = 2;
+                                        return true;
+                                    }
+                                }
                             }
                         }, {
                             label: 'Accuracy %',
@@ -1825,7 +1839,21 @@
                                 borderRadius: 6,
                                 borderWidth: 2,
                                 borderColor: '#ffffff',
-                                padding: { top: 6, bottom: 6, left: 8, right: 8 }
+                                padding: { top: 6, bottom: 6, left: 8, right: 8 },
+                                listeners: {
+                                    enter: function(context) {
+                                        context.element.options.backgroundColor = '#059669';
+                                        context.element.options.font.size = 16;
+                                        context.element.options.borderWidth = 3;
+                                        return true;
+                                    },
+                                    leave: function(context) {
+                                        context.element.options.backgroundColor = '#10B981';
+                                        context.element.options.font.size = 14;
+                                        context.element.options.borderWidth = 2;
+                                        return true;
+                                    }
+                                }
                             }
                         }]
                     },
@@ -2265,7 +2293,21 @@
                                 borderRadius: 6,
                                 borderWidth: 2,
                                 borderColor: '#ffffff',
-                                padding: { top: 6, bottom: 6, left: 8, right: 8 }
+                                padding: { top: 6, bottom: 6, left: 8, right: 8 },
+                                listeners: {
+                                    enter: function(context) {
+                                        context.element.options.backgroundColor = '#0F172A';
+                                        context.element.options.font.size = 16;
+                                        context.element.options.borderWidth = 3;
+                                        return true;
+                                    },
+                                    leave: function(context) {
+                                        context.element.options.backgroundColor = '#1E40AF';
+                                        context.element.options.font.size = 14;
+                                        context.element.options.borderWidth = 2;
+                                        return true;
+                                    }
+                                }
                             }
                         },
                         scales: {
