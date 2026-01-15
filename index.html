@@ -1492,9 +1492,9 @@
                             },
                             datalabels: {
                                 display: true,
-                                align: 'top',
-                                anchor: 'end',
-                                offset: 12,
+                                align: 'bottom',
+                                anchor: 'center',
+                                offset: -25,
                                 formatter: (value) => value ? `${parseFloat(value).toFixed(1)}%` : '',
                                 color: '#ffffff',
                                 font: { 
@@ -1502,23 +1502,25 @@
                                     size: 14,
                                     family: 'Inter, sans-serif'
                                 },
-                                backgroundColor: '#3B82F6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.95)',
                                 borderRadius: 8,
                                 borderWidth: 2,
                                 borderColor: '#ffffff',
-                                padding: { top: 6, bottom: 6, left: 8, right: 8 },
+                                padding: { top: 6, bottom: 6, left: 10, right: 10 },
                                 textStrokeColor: '#1E40AF',
                                 textShadowColor: 'rgba(0, 0, 0, 0.3)',
                                 // Animation for labels
                                 listeners: {
                                     enter: function(context) {
-                                        context.element.options.backgroundColor = '#1E40AF';
+                                        context.element.options.backgroundColor = 'rgba(30, 64, 175, 0.95)';
                                         context.element.options.font.size = 16;
+                                        context.element.options.borderWidth = 3;
                                         return true;
                                     },
                                     leave: function(context) {
-                                        context.element.options.backgroundColor = '#3B82F6';
+                                        context.element.options.backgroundColor = 'rgba(59, 130, 246, 0.95)';
                                         context.element.options.font.size = 14;
+                                        context.element.options.borderWidth = 2;
                                         return true;
                                     }
                                 }
