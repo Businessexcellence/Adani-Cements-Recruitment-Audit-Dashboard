@@ -1526,11 +1526,19 @@
                                 }
                             }
                         },
+                        layout: {
+                            padding: {
+                                top: 20,
+                                bottom: 30,
+                                left: 10,
+                                right: 10
+                            }
+                        },
                         scales: {
                             y: {
                                 beginAtZero: false,
-                                min: 70,
-                                max: 100,
+                                min: 65,
+                                max: 105,
                                 grid: {
                                     display: true,
                                     color: 'rgba(0, 0, 0, 0.05)',
@@ -2279,9 +2287,18 @@
                                 return context.dataIndex * 100;
                             }
                         },
+                        layout: {
+                            padding: {
+                                top: 10,
+                                bottom: 10,
+                                left: 10,
+                                right: 80
+                            }
+                        },
                         plugins: {
                             legend: { display: false },
                             datalabels: {
+                                display: true,
                                 anchor: 'end',
                                 align: 'right',
                                 offset: 8,
@@ -3063,6 +3080,14 @@
                             mode: 'index',
                             intersect: false
                         },
+                        layout: {
+                            padding: {
+                                top: 30,
+                                bottom: 30,
+                                left: 10,
+                                right: 10
+                            }
+                        },
                         plugins: {
                             legend: { 
                                 position: 'bottom',
@@ -3074,6 +3099,7 @@
                                 }
                             },
                             datalabels: {
+                                display: true,
                                 display: true,
                                 align: 'bottom',
                                 anchor: 'center',
