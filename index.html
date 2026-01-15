@@ -565,8 +565,8 @@
                 <button class="btn btn-primary" onclick="resetFilters()">
                     <i class="fas fa-redo"></i> Reset Filters
                 </button>
-                <button class="btn btn-primary" onclick="toggleAudioDescriptions()" title="Toggle audio descriptions">
-                    <i class="fas fa-volume-up"></i> Audio
+                <button class="btn btn-primary" onclick="toggleAudioDescriptions()" title="Audio Descriptions Disabled" style="opacity: 0.5;">
+                    <i class="fas fa-volume-mute"></i> Audio
                 </button>
             </div>
         </div>
@@ -1268,10 +1268,88 @@
                 return isNaN(numA) || isNaN(numB) ? 0 : numA - numB;
             });
 
+            // Calculate weekly insights
+            const weeklyAccuracies = weeks.map(week => {
+                const data = weeklyData[week];
+                return data.pass + data.fail > 0 ? 
+                    (data.pass / (data.pass + data.fail)) * 100 : 0;
+            });
+            
+            const avgWeeklyAccuracy = weeklyAccuracies.length > 0 ? 
+                (weeklyAccuracies.reduce((a, b) => a + b, 0) / weeklyAccuracies.length).toFixed(2) : 0;
+            
+            const bestWeek = weeks.reduce((best, week, idx) => {
+                return weeklyAccuracies[idx] > best.accuracy ? 
+                    { week, accuracy: weeklyAccuracies[idx].toFixed(2) } : best;
+            }, { week: 'N/A', accuracy: 0 });
+            
+            const worstWeek = weeks.reduce((worst, week, idx) => {
+                return weeklyAccuracies[idx] < worst.accuracy && weeklyAccuracies[idx] > 0 ? 
+                    { week, accuracy: weeklyAccuracies[idx].toFixed(2) } : worst;
+            }, { week: 'N/A', accuracy: 100 });
+            
+            // Calculate week-over-week trend
+            let improvingWeeks = 0;
+            let decliningWeeks = 0;
+            for (let i = 1; i < weeklyAccuracies.length; i++) {
+                if (weeklyAccuracies[i] > weeklyAccuracies[i-1]) improvingWeeks++;
+                else if (weeklyAccuracies[i] < weeklyAccuracies[i-1]) decliningWeeks++;
+            }
+            
+            const totalVolume = weeks.reduce((sum, week) => sum + weeklyData[week].total, 0);
+            const avgWeeklyVolume = weeks.length > 0 ? Math.round(totalVolume / weeks.length) : 0;
+            
+            const trendDirection = improvingWeeks > decliningWeeks ? 'Improving' : 
+                                   improvingWeeks < decliningWeeks ? 'Declining' : 'Stable';
+            const trendIcon = improvingWeeks > decliningWeeks ? '📈' : 
+                             improvingWeeks < decliningWeeks ? '📉' : '➡️';
+
             const html = `
                 <div class="insights-panel">
-                    <h3><i class="fas fa-calendar-week"></i> Weekly Performance Analysis</h3>
-                    <p style="margin-top: 10px; opacity: 0.9;">Tracking ${weeks.length} weeks of audit data</p>
+                    <h3 style="margin-bottom: 20px; font-size: 20px;">
+                        <i class="fas fa-lightbulb"></i> Weekly Performance Insights
+                    </h3>
+                    <div class="insights-grid">
+                        <div class="insight-item">
+                            <div class="insight-label">Weeks Tracked</div>
+                            <div class="insight-value">${weeks.length}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Avg Weekly Accuracy</div>
+                            <div class="insight-value">${avgWeeklyAccuracy}%</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Avg Weekly Volume</div>
+                            <div class="insight-value">${avgWeeklyVolume}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Best Week</div>
+                            <div class="insight-value" style="font-size: 18px;">Week ${bestWeek.week}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${bestWeek.accuracy}% accuracy</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Needs Attention</div>
+                            <div class="insight-value" style="font-size: 18px;">Week ${worstWeek.week}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${worstWeek.accuracy}% accuracy</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Overall Trend</div>
+                            <div class="insight-value" style="font-size: 18px;">${trendIcon} ${trendDirection}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${improvingWeeks} up, ${decliningWeeks} down</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4 style="margin-bottom: 8px;">📊 Week-over-Week Analysis</h4>
+                        <p style="font-size: 13px; line-height: 1.6;">
+                            • ${weeks.length} weeks analyzed with ${totalVolume} total audits<br>
+                            • Performance trend is ${trendDirection.toLowerCase()} (${improvingWeeks} improving, ${decliningWeeks} declining)<br>
+                            • ${avgWeeklyAccuracy >= 95 ? '✅ Excellent weekly average - Exceeding 95% target' : 
+                                avgWeeklyAccuracy >= 85 ? '⚠️ Good weekly average - Within acceptable range' : 
+                                '❌ Weekly average below target - Action required'}<br>
+                            • ${bestWeek.accuracy > 95 ? 'Best week shows excellent capability at ' + bestWeek.accuracy + '%' : 
+                                'Best week at ' + bestWeek.accuracy + '% - Room for improvement'}
+                        </p>
+                    </div>
                 </div>
 
                 <div class="chart-card">
@@ -1352,15 +1430,21 @@
                                     ((data.pass / (data.pass + data.fail)) * 100).toFixed(2) : 0;
                             }),
                             borderColor: '#3B82F6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.15)',
                             tension: 0.4,
                             fill: true,
-                            borderWidth: 3,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
+                            borderWidth: 4,
+                            pointRadius: 7,
+                            pointHoverRadius: 10,
                             pointBackgroundColor: '#3B82F6',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 3,
+                            pointHoverBorderWidth: 4,
+                            pointHoverBackgroundColor: '#1E40AF',
+                            shadowOffsetX: 0,
+                            shadowOffsetY: 4,
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(59, 130, 246, 0.5)'
                         }]
                     },
                     options: {
@@ -1375,45 +1459,137 @@
                                     delay = context.dataIndex * 150;
                                 }
                                 return delay;
+                            },
+                            // Progressive drawing animation
+                            onProgress: function(animation) {
+                                const chart = animation.chart;
+                                const ctx = chart.ctx;
+                                ctx.save();
+                                ctx.shadowBlur = 10;
+                                ctx.shadowColor = 'rgba(59, 130, 246, 0.5)';
+                                ctx.restore();
                             }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
                         },
                         plugins: {
                             legend: { display: false },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: { size: 14, weight: 'bold' },
+                                bodyFont: { size: 13 },
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Accuracy: ' + parseFloat(context.parsed.y).toFixed(2) + '%';
+                                    }
+                                }
+                            },
                             datalabels: {
                                 display: true,
                                 align: 'top',
-                                offset: 6,
+                                anchor: 'end',
+                                offset: 12,
                                 formatter: (value) => value ? `${parseFloat(value).toFixed(1)}%` : '',
-                                color: '#3B82F6',
+                                color: '#ffffff',
                                 font: { 
                                     weight: 'bold', 
-                                    size: 11 
+                                    size: 14,
+                                    family: 'Inter, sans-serif'
                                 },
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                borderRadius: 4,
-                                padding: { top: 3, bottom: 3, left: 5, right: 5 },
-                                clip: true,
-                                clamp: true
+                                backgroundColor: '#3B82F6',
+                                borderRadius: 8,
+                                borderWidth: 2,
+                                borderColor: '#ffffff',
+                                padding: { top: 6, bottom: 6, left: 8, right: 8 },
+                                textStrokeColor: '#1E40AF',
+                                textShadowColor: 'rgba(0, 0, 0, 0.3)',
+                                // Animation for labels
+                                listeners: {
+                                    enter: function(context) {
+                                        context.element.options.backgroundColor = '#1E40AF';
+                                        context.element.options.font.size = 16;
+                                        return true;
+                                    },
+                                    leave: function(context) {
+                                        context.element.options.backgroundColor = '#3B82F6';
+                                        context.element.options.font.size = 14;
+                                        return true;
+                                    }
+                                }
                             }
                         },
                         scales: {
                             y: {
-                                beginAtZero: true,
+                                beginAtZero: false,
+                                min: 70,
                                 max: 100,
                                 grid: {
-                                    display: false
+                                    display: true,
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
                                 },
-                                ticks: { callback: value => value + '%' }
+                                ticks: { 
+                                    callback: value => value + '%',
+                                    font: { size: 12, weight: '500' },
+                                    color: '#475569'
+                                }
                             },
                             x: {
                                 grid: {
                                     display: false
+                                },
+                                ticks: {
+                                    font: { size: 12, weight: '500' },
+                                    color: '#475569'
                                 }
                             }
                         }
                     },
                     plugins: [ChartDataLabels]
                 });
+                
+                // Add subtle floating/pulsing animation effect
+                const chart = dashboardData.charts.weekly;
+                let time = 0;
+                let isAnimating = true;
+                
+                function floatAnimation() {
+                    if (!chart || chart.destroyed || !isAnimating) return;
+                    
+                    time += 0.015;
+                    const datasetMeta = chart.getDatasetMeta(0);
+                    const originalData = chart.data.datasets[0].data;
+                    
+                    // Apply subtle floating effect to points
+                    datasetMeta.data.forEach((point, index) => {
+                        const baseValue = originalData[index];
+                        const offset = Math.sin(time + index * 0.8) * 0.3;
+                        
+                        // Animate point radius for pulsing effect
+                        const radiusOffset = Math.sin(time * 2 + index) * 0.5;
+                        point.options.radius = 6 + radiusOffset;
+                        
+                        // Subtle shadow animation
+                        chart.options.plugins.tooltip.enabled = true;
+                    });
+                    
+                    chart.update('none');
+                    requestAnimationFrame(floatAnimation);
+                }
+                
+                // Start floating animation after initial render
+                setTimeout(() => {
+                    floatAnimation();
+                }, 2500);
+                
+                // Stop animation when chart is destroyed
+                chart.config._floatingAnimation = true;
             }
         }
 
@@ -1448,10 +1624,94 @@
                 monthOrder.indexOf(a) - monthOrder.indexOf(b)
             );
 
+            // Calculate monthly insights
+            const monthlyAccuracies = months.map(month => {
+                const data = monthlyData[month];
+                return data.pass + data.fail > 0 ? 
+                    (data.pass / (data.pass + data.fail)) * 100 : 0;
+            });
+            
+            const avgMonthlyAccuracy = monthlyAccuracies.length > 0 ? 
+                (monthlyAccuracies.reduce((a, b) => a + b, 0) / monthlyAccuracies.length).toFixed(2) : 0;
+            
+            const bestMonth = months.reduce((best, month, idx) => {
+                return monthlyAccuracies[idx] > best.accuracy ? 
+                    { month, accuracy: monthlyAccuracies[idx].toFixed(2) } : best;
+            }, { month: 'N/A', accuracy: 0 });
+            
+            const worstMonth = months.reduce((worst, month, idx) => {
+                return monthlyAccuracies[idx] < worst.accuracy && monthlyAccuracies[idx] > 0 ? 
+                    { month, accuracy: monthlyAccuracies[idx].toFixed(2) } : worst;
+            }, { month: 'N/A', accuracy: 100 });
+            
+            // Calculate month-over-month trend
+            let improvingMonths = 0;
+            let decliningMonths = 0;
+            for (let i = 1; i < monthlyAccuracies.length; i++) {
+                if (monthlyAccuracies[i] > monthlyAccuracies[i-1]) improvingMonths++;
+                else if (monthlyAccuracies[i] < monthlyAccuracies[i-1]) decliningMonths++;
+            }
+            
+            const totalVolume = months.reduce((sum, month) => sum + monthlyData[month].total, 0);
+            const avgMonthlyVolume = months.length > 0 ? Math.round(totalVolume / months.length) : 0;
+            const maxVolume = Math.max(...months.map(m => monthlyData[m].total));
+            const busiestMonth = months.find(m => monthlyData[m].total === maxVolume) || 'N/A';
+            
+            const trendDirection = improvingMonths > decliningMonths ? 'Improving' : 
+                                   improvingMonths < decliningMonths ? 'Declining' : 'Stable';
+            const trendIcon = improvingMonths > decliningMonths ? '📈' : 
+                             improvingMonths < decliningMonths ? '📉' : '➡️';
+            
+            const excellentMonths = monthlyAccuracies.filter(acc => acc >= 95).length;
+            const goodMonths = monthlyAccuracies.filter(acc => acc >= 85 && acc < 95).length;
+            const poorMonths = monthlyAccuracies.filter(acc => acc < 85 && acc > 0).length;
+
             const html = `
                 <div class="insights-panel">
-                    <h3><i class="fas fa-calendar-alt"></i> Monthly Performance Overview</h3>
-                    <p style="margin-top: 10px; opacity: 0.9;">Analyzing ${months.length} months of audit activity</p>
+                    <h3 style="margin-bottom: 20px; font-size: 20px;">
+                        <i class="fas fa-lightbulb"></i> Monthly Performance Insights
+                    </h3>
+                    <div class="insights-grid">
+                        <div class="insight-item">
+                            <div class="insight-label">Months Analyzed</div>
+                            <div class="insight-value">${months.length}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Avg Monthly Accuracy</div>
+                            <div class="insight-value">${avgMonthlyAccuracy}%</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Total Audits</div>
+                            <div class="insight-value">${totalVolume}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Best Month</div>
+                            <div class="insight-value" style="font-size: 16px;">${bestMonth.month.substring(0,9)}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${bestMonth.accuracy}% accuracy</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Needs Attention</div>
+                            <div class="insight-value" style="font-size: 16px;">${worstMonth.month.substring(0,9)}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${worstMonth.accuracy}% accuracy</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Busiest Month</div>
+                            <div class="insight-value" style="font-size: 16px;">${busiestMonth.substring(0,9)}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">${maxVolume} audits</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <h4 style="margin-bottom: 8px;">${trendIcon} Monthly Trend Analysis</h4>
+                        <p style="font-size: 13px; line-height: 1.6;">
+                            • ${months.length} months tracked with ${totalVolume} total audits (avg ${avgMonthlyVolume}/month)<br>
+                            • Performance breakdown: ${excellentMonths} excellent (≥95%), ${goodMonths} good (85-94%), ${poorMonths} needs work (<85%)<br>
+                            • Month-over-month trend is ${trendDirection.toLowerCase()} (${improvingMonths} improving, ${decliningMonths} declining)<br>
+                            • ${avgMonthlyAccuracy >= 95 ? '✅ Excellent monthly average - Consistently exceeding targets' : 
+                                avgMonthlyAccuracy >= 85 ? '⚠️ Good monthly average - Within acceptable range' : 
+                                '❌ Monthly average below target - Strategic review needed'}<br>
+                            • Peak performance in ${bestMonth.month} at ${bestMonth.accuracy}% shows capability benchmark
+                        </p>
+                    </div>
                 </div>
 
                 <div class="chart-card">

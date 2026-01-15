@@ -18,13 +18,17 @@ let dashboardData = {
 
 let currentTheme = 'light';
 let currentView = 'overall';
-let audioEnabled = true;
+let audioEnabled = false; // FIXED: Disabled by default to prevent auto-speaking
 let utterance = null;
+let isInitialLoad = true; // FIXED: Track initial page load
 
 // Initialize Select2 after DOM loads
 $(document).ready(function() {
     initializeSelect2();
-    setupAudioFilters();
+    // FIXED: Removed setupAudioFilters() call as it doesn't exist
+    setTimeout(() => {
+        isInitialLoad = false; // Allow audio after initial load completes
+    }, 2000);
 });
 
 function initializeSelect2() {
@@ -72,6 +76,23 @@ function initializeSelect2() {
         dashboardData.selectedFilters.parameters = $(this).val() || [];
         applySmartFilters();
     });
+}
+
+// FIXED: Safe speak function that checks if audio is enabled and page is loaded
+function speakText(text) {
+    if (!audioEnabled || !window.speechSynthesis || isInitialLoad) return;
+    
+    // Cancel any ongoing speech to prevent overlapping
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+    }
+    
+    utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    window.speechSynthesis.speak(utterance);
 }
 
 function toggleUploadSection() {
@@ -272,6 +293,25 @@ function renderView() {
         case 'comparison': renderComparisonView(); break;
         case 'trends': renderTrendsView(); break;
         case 'manual': renderUserManual(); break;
+    }
+}
+
+function toggleAudioDescriptions() {
+    audioEnabled = !audioEnabled;
+    const statusText = audioEnabled ? "Audio descriptions enabled" : "Audio descriptions disabled";
+    
+    // Always speak this status update (override the check)
+    if (window.speechSynthesis) {
+        const tempUtterance = new SpeechSynthesisUtterance(statusText);
+        tempUtterance.rate = 0.9;
+        window.speechSynthesis.speak(tempUtterance);
+    }
+    
+    // Update button visual feedback
+    const audioBtn = document.querySelector('[onclick="toggleAudioDescriptions()"]');
+    if (audioBtn) {
+        audioBtn.style.opacity = audioEnabled ? '1' : '0.5';
+        audioBtn.title = audioEnabled ? 'Audio Descriptions Enabled' : 'Audio Descriptions Disabled';
     }
 }
 
