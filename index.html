@@ -1779,13 +1779,18 @@
                                 display: true,
                                 anchor: 'end',
                                 align: 'top',
-                                offset: 4,
+                                offset: 8,
                                 formatter: (value) => value > 0 ? value : '',
-                                color: '#1E293B',
+                                color: '#ffffff',
                                 font: { 
                                     weight: 'bold', 
-                                    size: 11 
-                                }
+                                    size: 13 
+                                },
+                                backgroundColor: '#1E40AF',
+                                borderRadius: 6,
+                                borderWidth: 2,
+                                borderColor: '#ffffff',
+                                padding: { top: 5, bottom: 5, left: 8, right: 8 }
                             }
                         }, {
                             label: 'Accuracy %',
@@ -1809,16 +1814,18 @@
                             datalabels: {
                                 display: true,
                                 align: 'top',
-                                offset: 8,
+                                offset: 10,
                                 formatter: (value) => value > 0 ? `${parseFloat(value).toFixed(1)}%` : '',
-                                color: '#10B981',
+                                color: '#ffffff',
                                 font: { 
                                     weight: 'bold', 
-                                    size: 12 
+                                    size: 14 
                                 },
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                borderRadius: 4,
-                                padding: { top: 4, bottom: 4, left: 6, right: 6 }
+                                backgroundColor: '#10B981',
+                                borderRadius: 6,
+                                borderWidth: 2,
+                                borderColor: '#ffffff',
+                                padding: { top: 6, bottom: 6, left: 8, right: 8 }
                             }
                         }]
                     },
@@ -2247,16 +2254,18 @@
                             datalabels: {
                                 anchor: 'end',
                                 align: 'right',
-                                offset: 4,
+                                offset: 8,
                                 formatter: v => v + '%',
-                                color: '#1E293B',
+                                color: '#ffffff',
                                 font: { 
                                     weight: 'bold',
-                                    size: 13
+                                    size: 14
                                 },
-                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                                borderRadius: 4,
-                                padding: { top: 4, bottom: 4, left: 6, right: 6 }
+                                backgroundColor: '#1E40AF',
+                                borderRadius: 6,
+                                borderWidth: 2,
+                                borderColor: '#ffffff',
+                                padding: { top: 6, bottom: 6, left: 8, right: 8 }
                             }
                         },
                         scales: {
