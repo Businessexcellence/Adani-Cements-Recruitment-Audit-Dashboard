@@ -3110,7 +3110,7 @@
                         layout: {
                             padding: {
                                 top: 30,
-                                bottom: 30,
+                                bottom: 40,
                                 left: 10,
                                 right: 10
                             }
@@ -3127,10 +3127,14 @@
                             },
                             datalabels: {
                                 display: true,
-                                display: true,
                                 align: 'bottom',
                                 anchor: 'center',
-                                offset: -25,
+                                offset: (context) => {
+                                    // Different offsets for each dataset to prevent overlap
+                                    // Actual Accuracy (dataset 0): -30px below
+                                    // Moving Average (dataset 1): -15px below (closer to line)
+                                    return context.datasetIndex === 0 ? -30 : -15;
+                                },
                                 formatter: (value) => value ? `${parseFloat(value).toFixed(1)}%` : '',
                                 color: '#ffffff',
                                 font: { 
