@@ -2595,9 +2595,12 @@
                             </select>
                         </div>
                     </div>
-                    <canvas id="paramComparisonChart" style="max-height: 350px;"></canvas>
+                    <div style="position: relative; height: 400px; margin-top: 20px;">
+                        <canvas id="paramComparisonChart"></canvas>
+                    </div>
                 </div>
 
+                <div id="paramComparisonStats"></div>
                 <div id="comparisonStats"></div>
             `;
 
@@ -2893,6 +2896,30 @@
                 plugins: [ChartDataLabels]
             });
             console.log('✅ Parameter comparison chart created successfully');
+            
+            // Show comparison stats
+            document.getElementById('paramComparisonStats').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4 style="color: var(--adani-blue); margin-bottom: 15px;">${param1.substring(0, 40)}</h4>
+                        <p><strong>Accuracy:</strong> ${stats1.accuracy}%</p>
+                        <p><strong>Total Audits:</strong> ${stats1.totalOpp}</p>
+                        <p><strong>Pass:</strong> ${stats1.totalPass} | <strong>Fail:</strong> ${stats1.totalFail}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4 style="color: var(--success-color); margin-bottom: 15px;">${param2.substring(0, 40)}</h4>
+                        <p><strong>Accuracy:</strong> ${stats2.accuracy}%</p>
+                        <p><strong>Total Audits:</strong> ${stats2.totalOpp}</p>
+                        <p><strong>Pass:</strong> ${stats2.totalPass} | <strong>Fail:</strong> ${stats2.totalFail}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4 style="color: var(--warning-color); margin-bottom: 15px;">Difference</h4>
+                        <p><strong>Accuracy:</strong> ${(stats2.accuracy - stats1.accuracy).toFixed(2)}%</p>
+                        <p><strong>Total Audits:</strong> ${stats2.totalOpp - stats1.totalOpp}</p>
+                        <p>${stats2.accuracy > stats1.accuracy ? '✅ Better Performance' : stats2.accuracy < stats1.accuracy ? '❌ Needs Improvement' : '➡️ Same Performance'}</p>
+                    </div>
+                </div>
+            `;
             }, 50); // Small delay to ensure canvas is ready
         }
 
