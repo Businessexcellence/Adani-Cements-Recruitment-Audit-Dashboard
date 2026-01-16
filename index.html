@@ -1628,11 +1628,16 @@
                 monthlyData[month].total += row['Opportunity Count'] || 0;
             });
 
-            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June',
+            // Month order - handle both abbreviated and full names
+            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+                               'January', 'February', 'March', 'April', 'May', 'June',
                                'July', 'August', 'September', 'October', 'November', 'December'];
-            const months = Object.keys(monthlyData).sort((a, b) => 
-                monthOrder.indexOf(a) - monthOrder.indexOf(b)
-            );
+            const months = Object.keys(monthlyData).sort((a, b) => {
+                const aIndex = monthOrder.indexOf(a.trim());
+                const bIndex = monthOrder.indexOf(b.trim());
+                return aIndex - bIndex;
+            });
 
             // Calculate monthly insights
             const monthlyAccuracies = months.map(month => {
@@ -2539,7 +2544,15 @@
             }
 
             // Get unique months and parameters
-            const months = [...new Set(dashboardData.filteredData.map(r => r.Month).filter(m => m))];
+            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+                               'January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            const months = [...new Set(dashboardData.filteredData.map(r => r.Month).filter(m => m))].sort((a, b) => {
+                const aIndex = monthOrder.indexOf(a.trim());
+                const bIndex = monthOrder.indexOf(b.trim());
+                return aIndex - bIndex;
+            });
             // Handle both 'Parameter' and 'Parameter ' column names
             const parameters = [...new Set(dashboardData.filteredData.map(r => {
                 const param = r['Parameter'] || r['Parameter '] || '';
@@ -2948,11 +2961,16 @@
                 monthlyTrends[month].total += row['Opportunity Count'] || 0;
             });
 
-            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June',
+            // Month order - handle both abbreviated and full names
+            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+                               'January', 'February', 'March', 'April', 'May', 'June',
                                'July', 'August', 'September', 'October', 'November', 'December'];
-            const months = Object.keys(monthlyTrends).sort((a, b) => 
-                monthOrder.indexOf(a) - monthOrder.indexOf(b)
-            );
+            const months = Object.keys(monthlyTrends).sort((a, b) => {
+                const aIndex = monthOrder.indexOf(a.trim());
+                const bIndex = monthOrder.indexOf(b.trim());
+                return aIndex - bIndex;
+            });
 
             const trendData = months.map(month => {
                 const data = monthlyTrends[month];
