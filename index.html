@@ -4102,14 +4102,15 @@
                 const data = await response.json();
                 
                 // Load data into dashboard
-                dashboardData.auditData = data.auditData;
-                dashboardData.recruiterData = data.recruiterData;
+                // Note: JSON has "Audit" and "Recruiter" keys, not "auditData" and "recruiterData"
+                dashboardData.auditData = data.Audit || data.auditData || [];
+                dashboardData.recruiterData = data.Recruiter || data.recruiterData || [];
                 
                 // Populate filters and render
                 populateFilters();
                 applySmartFilters();
                 
-                console.log(`✅ Sample data loaded! ${data.auditData.length} audit records, ${data.recruiterData.length} recruiter records`);
+                console.log(`✅ Sample data loaded! ${dashboardData.auditData.length} audit records, ${dashboardData.recruiterData.length} recruiter records`);
                 
                 // Show success message
                 const notification = document.createElement('div');
@@ -4130,7 +4131,7 @@
                         <i class="fas fa-check-circle" style="font-size: 20px;"></i>
                         <div>
                             <strong>Sample Data Loaded!</strong><br>
-                            <span style="font-size: 12px; opacity: 0.9;">${data.auditData.length} audit records ready to explore</span>
+                            <span style="font-size: 12px; opacity: 0.9;">${dashboardData.auditData.length} audit records ready to explore</span>
                         </div>
                     </div>
                 `;
