@@ -1628,11 +1628,10 @@
                 monthlyData[month].total += row['Opportunity Count'] || 0;
             });
 
-            // Month order - handle both abbreviated and full names
-            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-                               'January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
+            // Month order - Financial Year (Apr to Mar)
+            // FY 2025-26: Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar
+            const monthOrder = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar',
+                               'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
             const months = Object.keys(monthlyData).sort((a, b) => {
                 const aIndex = monthOrder.indexOf(a.trim());
                 const bIndex = monthOrder.indexOf(b.trim());
@@ -2544,10 +2543,10 @@
             }
 
             // Get unique months and parameters
-            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-                               'January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
+            // Month order - Financial Year (Apr to Mar)
+            // FY 2025-26: Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar
+            const monthOrder = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar',
+                               'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
             const months = [...new Set(dashboardData.filteredData.map(r => r.Month).filter(m => m))].sort((a, b) => {
                 const aIndex = monthOrder.indexOf(a.trim());
                 const bIndex = monthOrder.indexOf(b.trim());
@@ -2961,11 +2960,10 @@
                 monthlyTrends[month].total += row['Opportunity Count'] || 0;
             });
 
-            // Month order - handle both abbreviated and full names
-            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-                               'January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
+            // Month order - Financial Year (Apr to Mar)
+            // FY 2025-26: Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar
+            const monthOrder = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar',
+                               'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
             const months = Object.keys(monthlyTrends).sort((a, b) => {
                 const aIndex = monthOrder.indexOf(a.trim());
                 const bIndex = monthOrder.indexOf(b.trim());
