@@ -4093,7 +4093,9 @@
         async function loadSampleData() {
             try {
                 console.log('🔄 Loading sample data...');
-                const response = await fetch('sample-data.json');
+                // Add cache-busting parameter to force fresh data load
+                const timestamp = new Date().getTime();
+                const response = await fetch(`sample-data.json?v=${timestamp}`);
                 if (!response.ok) {
                     throw new Error('Failed to load sample data');
                 }
