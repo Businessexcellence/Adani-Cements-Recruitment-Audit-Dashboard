@@ -3125,7 +3125,7 @@
                         },
                         layout: {
                             padding: {
-                                top: 30,
+                                top: 50,
                                 bottom: 40,
                                 left: 10,
                                 right: 10
@@ -3143,13 +3143,16 @@
                             },
                             datalabels: {
                                 display: true,
-                                align: 'bottom',
+                                align: (context) => {
+                                    // Actual Accuracy (dataset 0): ABOVE the line
+                                    // Moving Average (dataset 1): BELOW the line
+                                    return context.datasetIndex === 0 ? 'top' : 'bottom';
+                                },
                                 anchor: 'center',
                                 offset: (context) => {
-                                    // Different offsets for each dataset to prevent overlap
-                                    // Actual Accuracy (dataset 0): -30px below
-                                    // Moving Average (dataset 1): -15px below (closer to line)
-                                    return context.datasetIndex === 0 ? -30 : -15;
+                                    // Actual Accuracy (dataset 0): 25px above the line
+                                    // Moving Average (dataset 1): 25px below the line
+                                    return context.datasetIndex === 0 ? 25 : -25;
                                 },
                                 formatter: (value) => value ? `${parseFloat(value).toFixed(1)}%` : '',
                                 color: '#ffffff',
